@@ -29,5 +29,8 @@
     "eslint": "^9.24.0",
     "typescript": "^5.8.3"
   },
-  "packageManager": "yarn@1.22.22"
+  "packageManager": "yarn@1.22.22",
+  "dependencies": {
+    "@noble/curves": "^2.0.0"
+  }
 }
