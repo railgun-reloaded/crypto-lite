@@ -8,7 +8,7 @@
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "pretest": "npm run build",
-    "test": "npx mocha ./test/**/*.test.js",
+    "test": "npx mocha ./dist/test/**/*.test.js",
     "prepack": "npm run build"
   },
   "repository": {
