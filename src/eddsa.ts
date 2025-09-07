@@ -94,7 +94,8 @@ class Eddsa {
   }
 }
 
-export default function buildEddsa () {
+// export default new Eddsa(buildBabyJub(), buildPoseidon())
+export default function buildEddsaPoseidon () {
   const babyJub = buildBabyJub()
   const poseidon = buildPoseidon()
   return new Eddsa(babyJub, poseidon)
