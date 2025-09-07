@@ -13,9 +13,8 @@
 
 import assert from 'assert'
 
-import type { FieldInput } from '../bn254'
-import { Fr } from '../bn254'
-
+import type { FieldInput } from './bn254'
+import { Fr } from './bn254'
 import poseidonConstants from './poseidon_constants_opt'
 
 function unsringifyConstants (F: typeof Fr, o: typeof poseidonConstants): any {
