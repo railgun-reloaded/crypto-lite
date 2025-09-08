@@ -11,7 +11,6 @@ import { expect } from 'chai'
 import { poseidon, poseidonHex, privateKeyToPublicKey, signPoseidon, verifyEDDSA } from '../src'
 import { NobleFr } from '../src/bn254'
 import { bigIntToUint8Array, uint8ArrayToBigInt } from '../src/math'
-import { poseidonHash3 } from '../src/poseidon'
 import opts from '../src/poseidon_constants_opt'
 
 describe('Crypto-Lite module', () => {
@@ -118,10 +117,10 @@ describe('Crypto-Lite module', () => {
     //   sboxPower: 5,
     //   mds
     // })
-    const inputz = uint8ArrayToBigInt(input)
-    const hash = poseidonHash3(inputz, 0n, 0n)
-    const h2 = poseidon([input, new Uint8Array(32)])
-    console.log('hash', hash, uint8ArrayToBigInt(h2))
+    // const inputz = uint8ArrayToBigInt(input)
+    // const hash = poseidonHash3(inputz, 0n, 0n)
+    // const h2 = poseidon([input, new Uint8Array(32)])
+    // console.log('hash', hash, uint8ArrayToBigInt(h2))
     const ehash = uint8ArrayToBigInt(expected)
     const output = poseidon([input])
     console.log(ehash, uint8ArrayToBigInt(output))

@@ -20,7 +20,9 @@ const babyjubjubCURVE: EdwardsOpts = {
   Gy: BigInt('0xc19139cb84c680a6e14116da06056174a0cfa121e6e5c2450f87d64fc000001'),
 }
 
-export const babyjubjub: EdDSA = /* @__PURE__ */ eddsa(edwards(babyjubjubCURVE), blake512)
+const babyjubjubTwistedEdwards = edwards(babyjubjubCURVE)
+
+export const babyjubjub: EdDSA = /* @__PURE__ */ eddsa(babyjubjubTwistedEdwards, blake512)
 
 // twistedEdwards babyjubjub -blake512 implementation?
 // need to modify prv2pub sign/verify or write new ones?
