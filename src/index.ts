@@ -8,7 +8,8 @@ import {
   getPublicKey
 } from '@noble/ed25519'
 // import * as ed from '@noble/ed25519'
-// import { sha512 } from '@noble/hashes/sha2'
+// import { blake512 } from '@noble/hashes/blake1'
+// console.log(blake512)
 
 import buildEddsa from './eddsa'
 // @ts-ignore TODO: typefix

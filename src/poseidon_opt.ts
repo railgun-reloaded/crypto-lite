@@ -17,7 +17,7 @@ import type { FieldInput } from './bn254'
 import { Fr } from './bn254'
 import poseidonConstants from './poseidon_constants_opt'
 
-function unsringifyConstants (F: typeof Fr, o: typeof poseidonConstants): any {
+export function unsringifyConstants (F: typeof Fr, o: typeof poseidonConstants): any {
   if (typeof o === 'string' && /^[0-9]+$/.test(o)) {
     return F.e(o)
   } else if (typeof o === 'string' && /^0x[0-9a-fA-F]+$/.test(o)) {

@@ -1,16 +1,16 @@
+/* eslint-disable import-x/group-exports */
 // TODO: remove this
 /* eslint-disable jsdoc/require-jsdoc */
 
 import { bn254 } from '@noble/curves/bn254'
 import { randomBytes } from '@noble/curves/utils'
 
-const NobleFr = bn254.fields.Fr
-
 type FieldInput = bigint | number | string
 type FieldPointDouble = bigint[]
 type FieldPointSingle = bigint[]
 
-function toIField (f:FieldInput) {
+export const NobleFr = bn254.fields.Fr
+export function toIField (f:FieldInput) {
   return NobleFr.create(BigInt(f))
 }
 
@@ -43,7 +43,7 @@ export const Fr = {
   toString: (a: FieldInput, base: number = 10) => toIField(a).toString(base),
   e: (a: FieldInput | Uint8Array) => {
     if (a instanceof Uint8Array) {
-      return NobleFr.fromBytes(a)
+      return NobleFr.fromBytes(a, true)
     }
     return toIField(a)
   },
