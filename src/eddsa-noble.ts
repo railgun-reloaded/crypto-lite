@@ -6,8 +6,8 @@ import { eddsa, edwards } from '@noble/curves/abstract/edwards'
 import type { EdwardsOpts } from '@noble/ed25519'
 import { blake512 } from '@noble/hashes/blake1'
 
-import buildPoseidon from './poseidon_opt.js'
 import type { FieldInput } from './bn254.js'
+import buildPoseidon from './poseidon_opt.js'
 
 // -------- Curve --------
 const babyjubjubCURVE: EdwardsOpts = {
@@ -87,25 +87,39 @@ export class EddsaPoseidon {
   signPoseidon (prv: Uint8Array, msg: Uint8Array) {
     const sBuff = this.pruneBuffer(blake512(prv)) // 64 bytes
     const s = leBytesToBigint(sBuff.subarray(0, 32))
+    const A = (this.Point.fromAffine(this.Base8) as any).multiplyUnsafe(s >> 3n).toAffine() as Affine
+    console.log("A, new", A)
 
-    const A = this.Point.fromAffine(this.Base8)
-      .multiplyUnsafe(s >> 3n)
-      .toAffine() as Affine
+    // const msgFp = this.Fp.create(leBytesToBigint(msg))
+    // const msgLE = this.toMontgomery(msgFp) // Uint8Array(32), LE
 
     const compose = new Uint8Array(32 + msg.length)
+    console.log("composeBuff new", compose)
     compose.set(sBuff.subarray(32, 64), 0)
-    compose.set(msg, 32)
+    console.log("composeBuff new", compose)
+    compose.set(msg.reverse(), 32)
+    console.log("composeBuff new", compose)
 
     const r = leBytesToBigint(blake512(compose)) % this.n
-    const R8 = this.Point.fromAffine(this.Base8).multiplyUnsafe(r).toAffine() as Affine
 
-    const msgField = this.Fp.create(leBytesToBigint(msg)) // reduce into Fp
-    const hm = this.poseidon([R8.x, R8.y, A.x, A.y, msgField]) // % this.n
+    console.log('rbuff new', r)
+    const R8 = (this.Point.fromAffine(this.Base8) as any).multiplyUnsafe(r).toAffine() as Affine
 
-    const S = (r + hm * s) % this.n
-    const output = [R8.x, R8.y, S]
-    return output
-    // return { R8: [R8.x, R8.y], S, A: [A.x, A.y] }
+    // Reduce msg into Fp (BN254) via Fp.create
+    const msgField = this.Fp.create(leBytesToBigint(msg))
+
+    const hm = this.poseidon([R8.x, R8.y, A.x, A.y, msgField]) % this.n
+    console.log("hm new", hm)
+    const hms = this.Point.Fp.create(hm)
+    console.log('hms new', hms)
+
+    // const S = (r + hm * s) % this.Fp.ORDER
+    const subOrder = this.Fr.ORDER >> 3n
+    console.log('this.fp.order', this.Fp.ORDER, this.Fr.ORDER, subOrder)
+    const mul = hms * s
+    const add = r + mul
+    const S = add % subOrder // % this.Point.Fn.ORDER
+    return [R8.x, R8.y, S]
   }
 
   // Check: Base8*S == R8 + A*(hm*8)
@@ -122,6 +136,7 @@ export class EddsaPoseidon {
 
     const msgField = this.Fp.create(leBytesToBigint(msg))
     const hm = this.poseidon([sig.R8.x, sig.R8.y, A.x, A.y, msgField]) % this.n
+    console.log("hm new", hm)
 
     const left = this.Point.fromAffine(this.Base8).multiplyUnsafe(sig.S).toAffine() as Affine
     const right = R.add(Ap.multiplyUnsafe(hm * 8n)).toAffine() as Affine

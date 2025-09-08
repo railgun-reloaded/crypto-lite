@@ -6,6 +6,7 @@ import { Scalar } from 'ffjavascript'
 
 import buildBabyJub from './babyjub.js'
 import buildPoseidon from './poseidon_opt.js'
+import { uint8ArrayToBigInt } from './math.js'
 
 class Eddsa {
   babyJub: any
@@ -48,23 +49,36 @@ class Eddsa {
       this.babyJub.Base8,
       Scalar.shr(s, 3)
     )
-
+    console.log("A, old", A)
     const composeBuff = new Uint8Array(32 + msg.length)
+    console.log("composeBuff", composeBuff)
     composeBuff.set(sBuff.slice(32), 0)
+    console.log("composeBuff", composeBuff)
     F.toRprLE(composeBuff, 32, msg)
     const rBuff = createBlakeHash('blake512')
       .update(Buffer.from(composeBuff))
       .digest()
+    console.log("rBuff", uint8ArrayToBigInt(rBuff))
+
+    console.log("composeBuff", composeBuff)
     const r = Scalar.mod(Scalar.fromRprLE(rBuff, 0, 64), this.babyJub.subOrder)
     const R8 = this.babyJub.mulPointEscalar(this.babyJub.Base8, r)
 
     const hm = this.poseidon([R8[0], R8[1], A[0], A[1], msg])
+    console.log("hm old", hm)
     const hms = Scalar.e(this.babyJub.F.toObject(hm))
-
+    console.log('hms old', hms)
+    const aa = Scalar.mul(hms, s)
+    console.log('aa', aa)
+    const bb = Scalar.add(r, aa)
+    console.log('bb', bb)
+    console.log('suborder', this.babyJub.subOrder)
+    console.log('order', this.babyJub.order)
     const S = Scalar.mod(
       Scalar.add(r, Scalar.mul(hms, s)),
       this.babyJub.subOrder
     )
+    console.log('S', S)
     return {
       R8,
       S,
