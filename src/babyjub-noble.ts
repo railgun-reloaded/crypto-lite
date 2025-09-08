@@ -21,3 +21,6 @@ const babyjubjubCURVE: EdwardsOpts = {
 }
 
 export const babyjubjub: EdDSA = /* @__PURE__ */ eddsa(edwards(babyjubjubCURVE), blake512)
+
+// twistedEdwards babyjubjub -blake512 implementation?
+// need to modify prv2pub sign/verify or write new ones?
