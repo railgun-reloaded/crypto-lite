@@ -90,9 +90,6 @@ export class EddsaPoseidon {
     const A = (this.Point.fromAffine(this.Base8) as any).multiplyUnsafe(s >> 3n).toAffine() as Affine
     console.log("A, new", A)
 
-    // const msgFp = this.Fp.create(leBytesToBigint(msg))
-    // const msgLE = this.toMontgomery(msgFp) // Uint8Array(32), LE
-
     const compose = new Uint8Array(32 + msg.length)
     console.log("composeBuff new", compose)
     compose.set(sBuff.subarray(32, 64), 0)
@@ -106,6 +103,7 @@ export class EddsaPoseidon {
     const R8 = (this.Point.fromAffine(this.Base8) as any).multiplyUnsafe(r).toAffine() as Affine
 
     // Reduce msg into Fp (BN254) via Fp.create
+
     const msgField = this.Fp.create(leBytesToBigint(msg))
 
     const hm = this.poseidon([R8.x, R8.y, A.x, A.y, msgField]) % this.n
@@ -119,27 +117,40 @@ export class EddsaPoseidon {
     const mul = hms * s
     const add = r + mul
     const S = add % subOrder // % this.Point.Fn.ORDER
+    // reorder inputs
+    msg.reverse()
     return [R8.x, R8.y, S]
   }
 
   // Check: Base8*S == R8 + A*(hm*8)
-  verifyPoseidon (msg: Uint8Array, sig: { R8: Affine; S: bigint }, A: Affine): boolean {
-    if (!sig?.R8 || typeof sig.S !== 'bigint') return false
-    if (sig.S >= this.n) return false
+  verifyPoseidon (msg: Uint8Array, sig: [bigint, bigint, bigint], A: Affine) {
+    const [Rx, Ry, S] = sig
+    const subOrder = this.Fr.ORDER >> 3n
 
-    const R = this.Point.fromAffine(sig.R8)
+    if (S >= subOrder) return false
+
+    const R8 = { x: Rx, y: Ry } as Affine
+    const R = this.Point.fromAffine(R8)
     const Ap = this.Point.fromAffine(A)
 
-    // optional subgroup checks
-    if (!R.multiplyUnsafe(this.n).equals(this.Point.ZERO)) return false
-    if (!Ap.multiplyUnsafe(this.n).equals(this.Point.ZERO)) return false
+    // optional subgroup checks (match scalar domain)
+    if (!R.multiplyUnsafe(subOrder).equals(this.Point.ZERO)) return false
+    if (!Ap.multiplyUnsafe(subOrder).equals(this.Point.ZERO)) return false
+    console.log("PASSES SUBGROUP CHECKS")
+    // requires the msg.reverse
+    const msgField = this.Fp.create(leBytesToBigint(msg.reverse()))
+    msg.reverse()
+    const hm = this.poseidon([R8.x, R8.y, A.x, A.y, msgField]) % this.n
+    const hms = this.Point.Fp.create(hm)
 
-    const msgField = this.Fp.create(leBytesToBigint(msg))
-    const hm = this.poseidon([sig.R8.x, sig.R8.y, A.x, A.y, msgField]) % this.n
-    console.log("hm new", hm)
+    const left = this.Point.fromAffine(this.Base8)
+      .multiplyUnsafe(S % subOrder)
+      .toAffine() as Affine
+    console.log("Pleft new", left)
 
-    const left = this.Point.fromAffine(this.Base8).multiplyUnsafe(sig.S).toAffine() as Affine
-    const right = R.add(Ap.multiplyUnsafe(hm * 8n)).toAffine() as Affine
+    const k = (hms * 8n) % this.n
+    const right = R.add(Ap.multiplyUnsafe(k)).toAffine() as Affine
+    console.log("pRight new", right)
 
     return left.x === right.x && left.y === right.y
   }

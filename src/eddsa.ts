@@ -99,8 +99,12 @@ class Eddsa {
     const hms = Scalar.e(this.babyJub.F.toObject(hm))
 
     const Pleft = this.babyJub.mulPointEscalar(this.babyJub.Base8, sig.S)
+    console.log("Pleft", Pleft)
     let Pright = this.babyJub.mulPointEscalar(A, Scalar.mul(hms, 8))
+    console.log("pRight", Pright)
     Pright = this.babyJub.addPoint(sig.R8, Pright)
+
+    console.log("pRight", Pright)
 
     if (!this.babyJub.F.eq(Pleft[0], Pright[0])) return false
     if (!this.babyJub.F.eq(Pleft[1], Pright[1])) return false

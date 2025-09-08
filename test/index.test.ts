@@ -275,7 +275,16 @@ describe('Crypto-Lite module', () => {
     expect(signature, 'Signature not generated.')
 
     // new signature
+    const verified = verifyEDDSA(message, {
+      R8: [signature[0], signature[1]],
+      // @ts-ignore
+      S: signature[2],
+    }, pubKey)
+
+    expect(verified, 'Signature not verified.').to.eq(true)
+    console.log('msg', message)
     const newsignature = eddsa.signPoseidon(privateKey, message)
+    console.log('msg', message)
     console.log('signature', signature)
     // const formatted = newsignature.map(bigIntToUint8Array)
     const formatted = [
@@ -285,13 +294,10 @@ describe('Crypto-Lite module', () => {
     ]
     console.log('newsignature', formatted)
     // console.log('newsignature', formatted)
+    const a = { x: uint8ArrayToBigInt(key[0]), y: uint8ArrayToBigInt(key[1]) }
+    console.log('a', a)
+    const newVerified = eddsa.verifyPoseidon(message, newsignature as [bigint, bigint, bigint], a)
 
-    const verified = verifyEDDSA(message, {
-      R8: [signature[0], signature[1]],
-      // @ts-ignore
-      S: signature[2],
-    }, pubKey)
-
-    expect(verified, 'Signature not verified.').to.eq(true)
+    expect(newVerified, 'New Signature not verified.').to.eq(true)
   })
 })
