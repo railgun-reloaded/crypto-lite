@@ -86,7 +86,7 @@ describe('Crypto-Lite module', () => {
     // }
 
     const opts2 = {
-      Fp: eddsa.Fr,
+      Fp: eddsa.Fp,
       // rate,
       // capacity,
       // t: rate + capacity,
@@ -111,12 +111,12 @@ describe('Crypto-Lite module', () => {
     // const a = sponge.squeeze(3)
     // console.log('new poseidon', a)
     const newpos = pos3.hash([1n])
-    console.log('newpos', newpos)
+    console.log('newpos', uint8ArrayToBigInt(bigIntToUint8Array(newpos).reverse()))
     const ppa = poseidon([
       bigIntToUint8Array(1n),
       // bigIntToUint8Array(0n),
       // bigIntToUint8Array(0n)
-    ]).reverse()
+    ])
     console.log('normal poseidon', uint8ArrayToBigInt(ppa))
     // console.log('sponge a', uint8ArrayToBigInt(bigIntToUint8Array(a[0]!).reverse()))
     // console.log('p', p)
