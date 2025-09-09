@@ -93,8 +93,7 @@ export function createPoseidon (opts: {
     const t = inputs.length + 1
     // console.log(t)
     const { c } = getConstants(t)
-    let state = [initState, ...inputs.map((a) => Fp.create(Fp.fromBytes(Fp.toBytes(a).reverse())))]
-
+    let state = [initState, ...inputs.map((a) => Fp.create(Fp.fromBytes(Fp.toBytes(a).reverse()))), ...new Array(t - 2).fill(0n)]
     state = state.map((a, i) => Fp.add(a, ((c[i]!))))
     // console.log('initial state new', state)
     // return state.map((x, i) => Fp.add(x, roundConstants[round * t + i]));

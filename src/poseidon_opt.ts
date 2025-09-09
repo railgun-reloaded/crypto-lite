@@ -68,11 +68,11 @@ export default function buildPoseidon () {
     const S = opt.S[t - 2]
     const M = opt.M[t - 2]
     const P = opt.P[t - 2]
-    console.log('inputs', inputs)
+    // console.log('inputs', inputs)
     let state = [initState, ...inputs.map((a) => F.e(a))]
-    console.log('initial state og', state)
+    // console.log('initial state og', state)
     state = state.map((a, i) => F.add(a, C[i]))
-    console.log(state, 'afterstate')
+    console.log('afterstate', state)
 
     for (let r = 0; r < nRoundsF / 2 - 1; r++) {
       state = state.map((a) => pow5(a))

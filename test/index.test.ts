@@ -2,20 +2,23 @@
 
 import { before, describe, it } from 'node:test'
 
-import { grainGenConstants, poseidon as ppp } from '@noble/curves/abstract/poseidon'
-import {
-  // grainGenConstants,
-  poseidonSponge,
-  // poseidon as ppp
-} from '@noble/curves/abstract/poseidon.js'
+// import {
+//   grainGenConstants,
+//   // grainGenConstants,
+//   poseidon as ppp } from '@noble/curves/abstract/poseidon'
+// import {
+//   // grainGenConstants,
+//   poseidonSponge,
+//   // poseidon as ppp
+// } from '@noble/curves/abstract/poseidon.js'
 import { expect } from 'chai'
 
 import { poseidon, poseidonHex, privateKeyToPublicKey, signPoseidon, verifyEDDSA } from '../src'
-import { NobleFr } from '../src/bn254'
+// import { NobleFr } from '../src/bn254'
 import buildEddsaPoseidon2 from '../src/eddsa-noble'
 import { bigIntToUint8Array, uint8ArrayToBigInt } from '../src/math'
-import opts from '../src/poseidon_constants_opt'
 import { createPoseidon } from '../src/poseidon-noble'
+import opts from '../src/poseidon_constants_opt'
 
 describe('Crypto-Lite module', () => {
   before(async () => {
@@ -52,38 +55,38 @@ describe('Crypto-Lite module', () => {
     //   62, 254, 124, 144, 87, 178, 140, 93,
     //   173, 35, 189, 183, 164, 200, 32, 209
     // ])
-    const rate = 2
-    const capacity = 1
-    const roundsFull = 8
-    const roundsPartial = 57
-    // const mds1 = opts.M[2]!.map(row => row.map(BigInt)) // t=3
+    // const rate = 1
+    // const capacity = 1
+    // const roundsFull = 8
+    // const roundsPartial = 56
+    // const mds = opts.M[1]!.map(row => row.map(BigInt)) // t=3
     // const roundConstants1 = opts.C[2]!.map(BigInt)
     const eddsa = buildEddsaPoseidon2()
-    const { mds, roundConstants } = grainGenConstants({
-      Fp: NobleFr,
-      t: rate + capacity,
-      roundsFull,
-      roundsPartial,
-    })
-    console.log(roundConstants.length)
+    // const { mds, roundConstants } = grainGenConstants({
+    //   Fp: eddsa.Fp,
+    //   t: rate + capacity,
+    //   roundsFull,
+    //   roundsPartial,
+    // })
+    // console.log(roundConstants.length)
     // const roundConstants = opts.C.map(a => {
-    //   return a.map(BigInt)
+    //   return a.map(BigInt).slice(0, rate + capacity)
     // })
 
-    const _opts = {
-      Fp: eddsa.Fp,
-      rate,
-      capacity,
-      t: rate + capacity,
-      sboxPower: 5,
-      mds,
-      roundConstants,
-      roundsFull,
-      roundsPartial,
-    }
+    // const _opts = {
+    //   Fp: eddsa.Fp,
+    //   rate,
+    //   capacity,
+    //   t: rate + capacity,
+    //   sboxPower: 5,
+    //   mds,
+    //   roundConstants,
+    //   roundsFull,
+    //   roundsPartial,
+    // }
 
     const opts2 = {
-      Fp: eddsa.Fp,
+      Fp: eddsa.Fr,
       // rate,
       // capacity,
       // t: rate + capacity,
@@ -96,23 +99,26 @@ describe('Crypto-Lite module', () => {
     // console.log(opts2)
     const pos3 = createPoseidon(opts2)
 
-    const permutation = ppp(_opts)
-    const sponge = poseidonSponge(_opts)() // use carefully, not specced
+    // const permutation = ppp(_opts)
+    // const sponge = poseidonSponge(_opts)() // use carefully, not specced
 
     // console.log(permutation, sponge)
-    const p = permutation([1n, 0n, 0n])
+    // const p = permutation([1n, 0n])
     // const output = sponge.hash([1n, 0n, 0n])
-    sponge.absorb(p)
+    // sponge.absorb([p[0]!])
+    // sponge.absorb(p)
     // console.log('output', output)
-    // const a = sponge.squeeze(1)
-    console.log('new poseidon', p)
+    // const a = sponge.squeeze(3)
+    // console.log('new poseidon', a)
     const newpos = pos3.hash([1n])
     console.log('newpos', newpos)
-    const ppa = poseidon([bigIntToUint8Array(1n),
-      // bigIntToUint8Array(0n), bigIntToUint8Array(0n)
-    ])
+    const ppa = poseidon([
+      bigIntToUint8Array(1n),
+      // bigIntToUint8Array(0n),
+      // bigIntToUint8Array(0n)
+    ]).reverse()
     console.log('normal poseidon', uint8ArrayToBigInt(ppa))
-    // console.log('sponge a', a)
+    // console.log('sponge a', uint8ArrayToBigInt(bigIntToUint8Array(a[0]!).reverse()))
     // console.log('p', p)
   })
 
