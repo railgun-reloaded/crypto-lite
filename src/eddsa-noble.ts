@@ -9,7 +9,6 @@ import { blake512 } from '@noble/hashes/blake1'
 // import type { FieldInput } from './bn254.js'
 import buildPoseidon from './poseidon_opt.js'
 
-// -------- Curve --------
 const babyjubjubCURVE: EdwardsOpts = {
   p: 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001n,
   n: 0x30644e72e131a029b85045b68181585d59f76dc1c90770533b94bee1c9093788n,
@@ -20,7 +19,7 @@ const babyjubjubCURVE: EdwardsOpts = {
   Gy: 0x0c19139cb84c680a6e14116da06056174a0cfa121e6e5c2450f87d64fc000001n,
 }
 
-export const BabyJubPoint = edwards(babyjubjubCURVE) // <-- THIS IS THE POINT CLASS
+export const BabyJubPoint = edwards(babyjubjubCURVE)
 export const babyjubjub: EdDSA = eddsa(BabyJubPoint, blake512)
 
 type Affine = { x: bigint; y: bigint }
@@ -40,16 +39,16 @@ function leBytesToBigint (u8: Uint8Array): bigint {
 
 export class EddsaPoseidon {
   private readonly Point = BabyJubPoint                 // noble Point constructor
-  private readonly Fp = this.Point.Fp                   // base field
+  public readonly Fp = this.Point.Fp                   // base field
   public readonly Fr = this.Point.Fn                   // base field
   private readonly n = this.Point.CURVE().n             // subgroup order
   private readonly Base8: Affine                        // 8*G (affine)
-  private readonly poseidon: (inputs: bigint[]) => bigint
+  private readonly poseidon: any
 
-  constructor (poseidon: (inputs: bigint[]) => bigint) {
+  constructor () {
     // Base8 = 8 * BASE, stored as affine
     this.Base8 = this.Point.BASE.multiplyUnsafe(8n).toAffine() as Affine
-    this.poseidon = poseidon
+    this.poseidon = buildPoseidon()
   }
 
   // toMontgomery (a: FieldInput | Uint8Array) {
@@ -158,5 +157,5 @@ export class EddsaPoseidon {
 
 // Factory
 export default function buildEddsaPoseidon2 () {
-  return new EddsaPoseidon(buildPoseidon() as any)
+  return new EddsaPoseidon()
 }

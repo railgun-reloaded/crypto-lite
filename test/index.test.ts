@@ -15,6 +15,7 @@ import { NobleFr } from '../src/bn254'
 import buildEddsaPoseidon2 from '../src/eddsa-noble'
 import { bigIntToUint8Array, uint8ArrayToBigInt } from '../src/math'
 import opts from '../src/poseidon_constants_opt'
+import { createPoseidon } from '../src/poseidon-noble'
 
 describe('Crypto-Lite module', () => {
   before(async () => {
@@ -38,8 +39,7 @@ describe('Crypto-Lite module', () => {
     expect(poseidon([input])).to.deep.equal(expected)
   })
 
-  it('poseidon hashes', () => {
-
+  it.only('poseidon hashes new ', () => {
     // const input = new Uint8Array([
     //   213, 240, 248, 140, 111, 244, 23, 235,
     //   61, 48, 29, 92, 187, 133, 59, 226,
@@ -56,8 +56,8 @@ describe('Crypto-Lite module', () => {
     const capacity = 1
     const roundsFull = 8
     const roundsPartial = 57
-    // const mds = opts.M[2]!.map(row => row.map(BigInt)) // t=3
-    // const roundConstants = opts.C[2]!.map(BigInt)
+    // const mds1 = opts.M[2]!.map(row => row.map(BigInt)) // t=3
+    // const roundConstants1 = opts.C[2]!.map(BigInt)
     const eddsa = buildEddsaPoseidon2()
     const { mds, roundConstants } = grainGenConstants({
       Fp: NobleFr,
@@ -71,7 +71,7 @@ describe('Crypto-Lite module', () => {
     // })
 
     const _opts = {
-      Fp: eddsa.Fr,
+      Fp: eddsa.Fp,
       rate,
       capacity,
       t: rate + capacity,
@@ -81,6 +81,21 @@ describe('Crypto-Lite module', () => {
       roundsFull,
       roundsPartial,
     }
+
+    const opts2 = {
+      Fp: eddsa.Fp,
+      // rate,
+      // capacity,
+      // t: rate + capacity,
+      // sboxPower: 5n,
+      // mds: mds1,
+      // roundConstants: roundConstants1,
+      // roundsFull,
+      // roundsPartial,
+    }
+    // console.log(opts2)
+    const pos3 = createPoseidon(opts2)
+
     const permutation = ppp(_opts)
     const sponge = poseidonSponge(_opts)() // use carefully, not specced
 
@@ -91,6 +106,8 @@ describe('Crypto-Lite module', () => {
     // console.log('output', output)
     // const a = sponge.squeeze(1)
     console.log('new poseidon', p)
+    const newpos = pos3.hash([1n])
+    console.log('newpos', newpos)
     const ppa = poseidon([bigIntToUint8Array(1n),
       // bigIntToUint8Array(0n), bigIntToUint8Array(0n)
     ])
