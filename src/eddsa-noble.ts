@@ -6,7 +6,7 @@ import { eddsa, edwards } from '@noble/curves/abstract/edwards'
 import type { EdwardsOpts } from '@noble/ed25519'
 import { blake512 } from '@noble/hashes/blake1'
 
-import type { FieldInput } from './bn254.js'
+// import type { FieldInput } from './bn254.js'
 import buildPoseidon from './poseidon_opt.js'
 
 // -------- Curve --------
@@ -52,19 +52,19 @@ export class EddsaPoseidon {
     this.poseidon = poseidon
   }
 
-  toMontgomery (a: FieldInput | Uint8Array) {
-    if (a instanceof Uint8Array) {
-      return this.Fr.toBytes(this.Fr.fromBytes(a))
-    }
-    return this.Fr.toBytes(this.Fr.create(BigInt(a)))
-  }
+  // toMontgomery (a: FieldInput | Uint8Array) {
+  //   if (a instanceof Uint8Array) {
+  //     return this.Fr.toBytes(this.Fr.fromBytes(a))
+  //   }
+  //   return this.Fr.toBytes(this.Fr.create(BigInt(a)))
+  // }
 
-  fromMontgomery (a: FieldInput | Uint8Array) {
-    if (a instanceof Uint8Array) {
-      return this.Fr.toBytes(this.Fr.fromBytes(a))
-    }
-    return this.Fr.toBytes(this.Fr.create(BigInt(a)))
-  }
+  // fromMontgomery (a: FieldInput | Uint8Array) {
+  //   if (a instanceof Uint8Array) {
+  //     return this.Fr.toBytes(this.Fr.fromBytes(a))
+  //   }
+  //   return this.Fr.toBytes(this.Fr.create(BigInt(a)))
+  // }
 
   pruneBuffer (buff: Uint8Array) {
     return clampPrune32(buff)
@@ -88,18 +88,18 @@ export class EddsaPoseidon {
     const sBuff = this.pruneBuffer(blake512(prv)) // 64 bytes
     const s = leBytesToBigint(sBuff.subarray(0, 32))
     const A = (this.Point.fromAffine(this.Base8) as any).multiplyUnsafe(s >> 3n).toAffine() as Affine
-    console.log("A, new", A)
+    // console.log("A, new", A)
 
     const compose = new Uint8Array(32 + msg.length)
-    console.log("composeBuff new", compose)
+    // console.log("composeBuff new", compose)
     compose.set(sBuff.subarray(32, 64), 0)
-    console.log("composeBuff new", compose)
+    // console.log("composeBuff new", compose)
     compose.set(msg.reverse(), 32)
-    console.log("composeBuff new", compose)
+    // console.log("composeBuff new", compose)
 
     const r = leBytesToBigint(blake512(compose)) % this.n
 
-    console.log('rbuff new', r)
+    // console.log('rbuff new', r)
     const R8 = (this.Point.fromAffine(this.Base8) as any).multiplyUnsafe(r).toAffine() as Affine
 
     // Reduce msg into Fp (BN254) via Fp.create
@@ -107,13 +107,13 @@ export class EddsaPoseidon {
     const msgField = this.Fp.create(leBytesToBigint(msg))
 
     const hm = this.poseidon([R8.x, R8.y, A.x, A.y, msgField]) % this.n
-    console.log("hm new", hm)
+    // console.log("hm new", hm)
     const hms = this.Point.Fp.create(hm)
-    console.log('hms new', hms)
+    // console.log('hms new', hms)
 
     // const S = (r + hm * s) % this.Fp.ORDER
     const subOrder = this.Fr.ORDER >> 3n
-    console.log('this.fp.order', this.Fp.ORDER, this.Fr.ORDER, subOrder)
+    // console.log('this.fp.order', this.Fp.ORDER, this.Fr.ORDER, subOrder)
     const mul = hms * s
     const add = r + mul
     const S = add % subOrder // % this.Point.Fn.ORDER
@@ -133,10 +133,10 @@ export class EddsaPoseidon {
     const R = this.Point.fromAffine(R8)
     const Ap = this.Point.fromAffine(A)
 
-    // optional subgroup checks (match scalar domain)
+    // subgroup checks
     if (!R.multiplyUnsafe(subOrder).equals(this.Point.ZERO)) return false
     if (!Ap.multiplyUnsafe(subOrder).equals(this.Point.ZERO)) return false
-    console.log("PASSES SUBGROUP CHECKS")
+    // console.log("PASSES SUBGROUP CHECKS")
     // requires the msg.reverse
     const msgField = this.Fp.create(leBytesToBigint(msg.reverse()))
     msg.reverse()
@@ -146,11 +146,11 @@ export class EddsaPoseidon {
     const left = this.Point.fromAffine(this.Base8)
       .multiplyUnsafe(S % subOrder)
       .toAffine() as Affine
-    console.log("Pleft new", left)
+    // console.log("Pleft new", left)
 
     const k = (hms * 8n) % this.n
     const right = R.add(Ap.multiplyUnsafe(k)).toAffine() as Affine
-    console.log("pRight new", right)
+    // console.log("pRight new", right)
 
     return left.x === right.x && left.y === right.y
   }
