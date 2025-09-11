@@ -1,6 +1,6 @@
 /* eslint-disable jsdoc/require-jsdoc */
+import type { EdwardsOpts } from '@noble/curves/abstract/edwards'
 import { edwards } from '@noble/curves/abstract/edwards'
-import type { EdwardsOpts } from '@noble/ed25519'
 import { blake512 } from '@noble/hashes/blake1'
 
 // import { eddsa } from './edwards.js'
