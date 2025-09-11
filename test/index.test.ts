@@ -1,5 +1,6 @@
 // import assert from 'node:assert/strict'
 
+import { PerformanceObserver, performance } from 'node:perf_hooks'
 import { before, describe, it } from 'node:test'
 
 // import {
@@ -12,17 +13,17 @@ import { before, describe, it } from 'node:test'
 //   // poseidon as ppp
 // } from '@noble/curves/abstract/poseidon.js'
 import { expect } from 'chai'
-import { performance, PerformanceObserver } from 'node:perf_hooks'
 
 import { poseidon, poseidonHex, privateKeyToPublicKey, signPoseidon, verifyEDDSA } from '../src'
 // import { NobleFr } from '../src/bn254'
+import type { EddsaPoseidon } from '../src/eddsa-noble'
 import buildEddsaPoseidon2 from '../src/eddsa-noble'
 import { bigIntToUint8Array, uint8ArrayToBigInt } from '../src/math'
 import { createPoseidon } from '../src/poseidon-noble'
 import opts from '../src/poseidon_constants_opt'
 
 describe('Crypto-Lite module', () => {
-  let eddsa, pos3: any
+  let eddsa: EddsaPoseidon, pos3: any
 
   before(async () => {
     // before setup
@@ -108,8 +109,6 @@ describe('Crypto-Lite module', () => {
     //   roundsFull,
     //   roundsPartial,
     // }
-
-
 
     // const permutation = ppp(_opts)
     // const sponge = poseidonSponge(_opts)() // use carefully, not specced
@@ -377,7 +376,7 @@ describe('Crypto-Lite module', () => {
       69, 42, 2, 146, 162, 37, 2, 192,
       139, 19, 97, 86, 239, 35, 80, 129
     ])
-    const eddsa = buildEddsaPoseidon2()
+    // const eddsa = buildEddsaPoseidon2()
     const pkey = eddsa.prv2pub(privateKey)
     const key = pkey.map((element: any) => {
       return bigIntToUint8Array(element) // .reverse()

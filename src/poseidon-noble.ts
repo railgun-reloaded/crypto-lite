@@ -72,7 +72,6 @@ export function createPoseidon (opts: {
     return { c, s, m, p }
   }
 
-  
   function initializeState (inputs: bigint[]) {
     const initState = Fp.ZERO
     const t = inputs.length + 1
