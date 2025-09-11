@@ -23,7 +23,6 @@ function bigIntToUint8Array (num: bigint) {
   return eddsaBuild.toBytes(num)
 }
 
-// Convert Uint8Array to BigInt (little-endian)
 function uint8ArrayToBigInt (buf: Uint8Array) {
   return eddsaBuild.fromBytes(buf)
 }
