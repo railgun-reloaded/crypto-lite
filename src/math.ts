@@ -30,6 +30,8 @@ function modInverse (a: bigint, m: bigint) {
   return ((x % m) + m) % m
 }
 
+// TODO: move these into EddsaPoseidon
+
 // Convert BigInt to Uint8Array (32 bytes, little-endian)
 function bigIntToUint8Array (num: bigint) {
   const hex = num.toString(16).padStart(64, '0')

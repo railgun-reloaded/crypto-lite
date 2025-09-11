@@ -36,7 +36,7 @@ describe('Crypto-Lite module', () => {
     eddsa = buildEddsaPoseidon2()
 
     const opts2 = {
-      Fp: eddsa.Fr,
+      Fp: eddsa.Fp,
       // rate,
       // capacity,
       // t: rate + capacity,

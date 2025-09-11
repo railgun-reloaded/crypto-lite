@@ -50,7 +50,7 @@ function leBytesToBigint (u8: Uint8Array): bigint {
 
 export class EddsaPoseidon {
   private readonly Point = BabyJubPoint                 // noble Point constructor
-  // public readonly Fp = this.Point.Fp                   // base field
+  public readonly Fp = this.Point.Fp                   // base field
   public readonly Fr = this.Point.Fn                   // base field
   private readonly n = this.Point.CURVE().n             // subgroup order
   private readonly Base8: Affine                        // 8*G (affine)
@@ -62,16 +62,24 @@ export class EddsaPoseidon {
     this.poseidon = poseidon
   }
 
+  toBytes (a: bigint) {
+    return this.Fr.toBytes(a)
+  }
+
+  fromBytes (a: Uint8Array) {
+    return this.Fr.fromBytes(a, true)
+  }
+
   toMontgomery (a: bigint | Uint8Array) {
     if (a instanceof Uint8Array) {
-      return this.Fr.toBytes(this.Fr.fromBytes(a))
+      return this.Fr.toBytes(this.Fr.fromBytes(a, true))
     }
     return this.Fr.toBytes(this.Fr.create(BigInt(a)))
   }
 
   fromMontgomery (a: bigint | Uint8Array) {
     if (a instanceof Uint8Array) {
-      return this.Fr.toBytes(this.Fr.fromBytes(a))
+      return this.Fr.toBytes(this.Fr.fromBytes(a, true))
     }
     return this.Fr.toBytes(this.Fr.create(BigInt(a)))
   }
