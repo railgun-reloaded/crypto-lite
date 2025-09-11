@@ -443,7 +443,7 @@ describe('Crypto-Lite module', () => {
     // console.log('newsignature', formatted)
     const a = { x: uint8ArrayToBigInt(key[0]), y: uint8ArrayToBigInt(key[1]) }
     // console.log('a', a)
-    const newVerified = eddsa.verifyPoseidon(message, newsignature as [bigint, bigint, bigint], a)
+    const newVerified = eddsa.verifyPoseidon(message, newsignature, a)
 
     expect(newVerified, 'New Signature not verified.').to.eq(true)
   })

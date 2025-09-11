@@ -11,7 +11,7 @@ import {
 // import { blake512 } from '@noble/hashes/blake1'
 // console.log(blake512)
 
-import buildEddsa from './eddsa'
+import buildEddsa from './eddsa-noble'
 // @ts-ignore TODO: typefix
 import { bigIntToUint8Array, uint8ArrayToBigInt } from './math'
 
@@ -90,7 +90,7 @@ export const signPoseidon = (
   //   eddsaBuild.F.fromMontgomery(element).reverse()
   // )
   // 32 byte inputs only right now
-  return [bigIntToUint8Array(r8[0]).reverse(), bigIntToUint8Array(r8[1]).reverse(), bigIntToUint8Array(sig.S as any as bigint)]
+  return [bigIntToUint8Array(r8.x).reverse(), bigIntToUint8Array(r8.y).reverse(), bigIntToUint8Array(sig.S as any as bigint)]
   // reversing matches output from railgun-reloaded/cryptography
   // still ned to confirm thatis valid. does not currently pass /verify/ function
   // return [r8[0], r8[1], bigIntToUint8Array(sig.S).reverse()]
@@ -100,16 +100,16 @@ export const verifyEDDSA = (message: Uint8Array, signature: CircomlibSignature, 
   if (typeof eddsaBuild === 'undefined') {
     throw new Error('Invalid')
   }
-
+  console.log('SIGGGGGG', signature)
   //  use raw values
   const r8 = signature.R8.map((element: any) => uint8ArrayToBigInt(element.reverse()))
   const newSig = {
-    R8: r8,
+    R8: { x: r8[0]!, y: r8[1]! },
     S: uint8ArrayToBigInt(signature.S as any as Uint8Array),
   }
-  const newPubKey = pubkey.map((element: any) => uint8ArrayToBigInt(element))
+  const newPubKey = pubkey.map((element: any) => uint8ArrayToBigInt(element.reverse()))
 
-  return eddsaBuild.verifyPoseidon(message, newSig, newPubKey)
+  return eddsaBuild.verifyPoseidon(message, newSig, { x: newPubKey[0]!, y: newPubKey[1]! })
 }
 
 // used for getPublicSpendingKey
@@ -118,7 +118,7 @@ export const privateKeyToPublicKey = (
 ): [Uint8Array, Uint8Array] | any => {
   const key = eddsaBuild
     .prv2pub(privateKey)
-    .map((element: any) => eddsaBuild.F.fromMontgomery(element).reverse()) as [Uint8Array, Uint8Array]
+    .map((element: any) => eddsaBuild.fromMontgomery(element).reverse()) as [Uint8Array, Uint8Array]
   return key
 }
 

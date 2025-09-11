@@ -43,7 +43,7 @@ export class EddsaPoseidon {
   public readonly Fr = this.Point.Fn                   // base field
   private readonly n = this.Point.CURVE().n             // subgroup order
   private readonly Base8: Affine                        // 8*G (affine)
-  private readonly poseidon: any
+  public readonly poseidon: any
 
   constructor () {
     // Base8 = 8 * BASE, stored as affine
@@ -51,19 +51,19 @@ export class EddsaPoseidon {
     this.poseidon = buildPoseidon()
   }
 
-  // toMontgomery (a: FieldInput | Uint8Array) {
-  //   if (a instanceof Uint8Array) {
-  //     return this.Fr.toBytes(this.Fr.fromBytes(a))
-  //   }
-  //   return this.Fr.toBytes(this.Fr.create(BigInt(a)))
-  // }
+  toMontgomery (a: bigint | Uint8Array) {
+    if (a instanceof Uint8Array) {
+      return this.Fr.toBytes(this.Fr.fromBytes(a))
+    }
+    return this.Fr.toBytes(this.Fr.create(BigInt(a)))
+  }
 
-  // fromMontgomery (a: FieldInput | Uint8Array) {
-  //   if (a instanceof Uint8Array) {
-  //     return this.Fr.toBytes(this.Fr.fromBytes(a))
-  //   }
-  //   return this.Fr.toBytes(this.Fr.create(BigInt(a)))
-  // }
+  fromMontgomery (a: bigint | Uint8Array) {
+    if (a instanceof Uint8Array) {
+      return this.Fr.toBytes(this.Fr.fromBytes(a))
+    }
+    return this.Fr.toBytes(this.Fr.create(BigInt(a)))
+  }
 
   pruneBuffer (buff: Uint8Array) {
     return clampPrune32(buff)
@@ -119,17 +119,19 @@ export class EddsaPoseidon {
     const S = add % subOrder // % this.Point.Fn.ORDER
     // reorder inputs
     msg.reverse()
-    return [R8.x, R8.y, S]
+    return { R8, S }
+    // return [R8.x, R8.y, S]
   }
 
   // Check: Base8*S == R8 + A*(hm*8)
-  verifyPoseidon (msg: Uint8Array, sig: [bigint, bigint, bigint], A: Affine) {
-    const [Rx, Ry, S] = sig
+  verifyPoseidon (msg: Uint8Array, sig: { R8: Affine, S: bigint }, A: Affine) {
+    const { R8, S } = sig
+    // const { x: Rx, y: Ry } = R8
     const subOrder = this.Fr.ORDER >> 3n
 
     if (S >= subOrder) return false
 
-    const R8 = { x: Rx, y: Ry } as Affine
+    // const R8 = { x: Rx, y: Ry } as Affine
     const R = this.Point.fromAffine(R8)
     const Ap = this.Point.fromAffine(A)
 
