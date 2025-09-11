@@ -8,7 +8,7 @@
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "pretest": "npm run build",
-    "test": "npx mocha ./dist/test/**/*.test.js",
+    "test": "node --test ./dist/test/**/*.test.js",
     "prepack": "npm run build"
   },
   "repository": {
@@ -35,7 +35,6 @@
   "dependencies": {
     "@noble/curves": "^2.0.0",
     "@noble/ed25519": "^3.0.0",
-    "@noble/hashes": "^2.0.0",
-    "blake-hash": "^2.0.0"
+    "@noble/hashes": "^2.0.0"
   }
 }
