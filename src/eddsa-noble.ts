@@ -53,7 +53,6 @@ export class EddsaPoseidon {
   public readonly poseidon: any
 
   constructor () {
-    // Base8 = 8 * BASE, stored as affine
     this.Base8 = this.Point.BASE.multiplyUnsafe(8n).toAffine() as Affine
     this.poseidon = poseidon
   }
