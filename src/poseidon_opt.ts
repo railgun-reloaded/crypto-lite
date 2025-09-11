@@ -59,7 +59,6 @@ export default function buildPoseidon () {
       initState = F.zero
     }
     nOut = nOut || 1
-    // console.log('initState old', initState)
 
     const t = inputs.length + 1
     const nRoundsF = N_ROUNDS_F
@@ -68,28 +67,22 @@ export default function buildPoseidon () {
     const S = opt.S[t - 2]
     const M = opt.M[t - 2]
     const P = opt.P[t - 2]
-    // console.log('inputs', inputs)
     let state = [initState, ...inputs.map((a) => F.e(a))]
-    // console.log('initial state og', state)
     state = state.map((a, i) => F.add(a, C[i]))
-    // console.log('afterstate', state)
 
     for (let r = 0; r < nRoundsF / 2 - 1; r++) {
       state = state.map((a) => pow5(a))
-      // console.log('po5 og', state)
       state = state.map((a, i) => F.add(a, C[(r + 1) * t + i]))
       state = state.map((_, i) =>
         state.reduce((acc, a, j) => F.add(acc, F.mul(M[j][i], a)), F.zero)
       )
     }
-    // console.log('after first og', state)
 
     state = state.map((a) => pow5(a))
     state = state.map((a, i) => F.add(a, C[(nRoundsF / 2 - 1 + 1) * t + i]))
     state = state.map((_, i) =>
       state.reduce((acc, a, j) => F.add(acc, F.mul(P[j][i], a)), F.zero)
     )
-    // console.log('after first og2', state)
 
     for (let r = 0; r < nRoundsP!; r++) {
       state[0] = pow5(state[0])
@@ -105,7 +98,6 @@ export default function buildPoseidon () {
       }
       state[0] = s0
     }
-    // console.log('after first og23', state[0])
     for (let r = 0; r < nRoundsF / 2 - 1; r++) {
       state = state.map((a) => pow5(a))
       state = state.map((a, i) =>
@@ -115,7 +107,6 @@ export default function buildPoseidon () {
         state.reduce((acc, a, j) => F.add(acc, F.mul(M[j][i], a)), F.zero)
       )
     }
-    // console.log('after first og233', state)
 
     state = state.map((a) => pow5(a))
     state = state.map((_, i) =>
