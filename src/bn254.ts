@@ -48,7 +48,6 @@ export const Fr = {
     return toIField(a)
   },
 
-  // little-endian support (Noble doesn't have this)
   toRprLE: (buffer: Uint8Array, offset: number, value: FieldInput | Uint8Array) => {
     let bytes: Uint8Array
     if (value instanceof Uint8Array) {
@@ -56,7 +55,6 @@ export const Fr = {
     } else {
       bytes = NobleFr.toBytes(toIField(value))
     }
-    // convert big-endian to little-endian
     const leBytes = new Uint8Array(bytes).reverse()
     const copyLength = Math.min(leBytes.length, buffer.length - offset)
     buffer.set(leBytes.slice(0, copyLength), offset)
@@ -72,11 +70,9 @@ export const Fr = {
     return NobleFr.fromBytes(beBytes)
   },
 
-  // Big-endian (direct Noble usage)
   toBytes: (value: FieldInput) => NobleFr.toBytes(toIField(value)),
   fromBytes: (bytes: Uint8Array) => NobleFr.fromBytes(bytes),
 
-  // Montgomery form - Noble handles internally
   toMontgomery: (a: FieldInput | Uint8Array) => {
     if (a instanceof Uint8Array) {
       return NobleFr.toBytes(NobleFr.fromBytes(a))
@@ -112,7 +108,6 @@ export const Fr = {
   },
 
   mod: (a: FieldInput, b: FieldInput) => {
-    // Noble handles modular reduction automatically, but for compatibility:
     const aVal = toIField(a)
     const bVal = BigInt(b)
     return aVal % bVal
