@@ -1,13 +1,16 @@
 /* eslint-disable import-x/exports-last */
 /* eslint-disable import-x/group-exports */
 /* eslint-disable jsdoc/require-jsdoc */
-import type { EdDSA } from '@noble/curves/abstract/edwards'
-import { eddsa, edwards } from '@noble/curves/abstract/edwards'
+// import type { EdDSA } from '@noble/curves/abstract/edwards'
+import { edwards } from '@noble/curves/abstract/edwards'
 import type { EdwardsOpts } from '@noble/ed25519'
 import { blake512 } from '@noble/hashes/blake1'
 
 // import type { FieldInput } from './bn254.js'
+import { eddsa } from './edwards.js'
 import buildPoseidon from './poseidon_opt.js'
+
+const poseidon = buildPoseidon()
 
 const babyjubjubCURVE: EdwardsOpts = {
   p: 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001n,
@@ -20,7 +23,15 @@ const babyjubjubCURVE: EdwardsOpts = {
 }
 
 export const BabyJubPoint = edwards(babyjubjubCURVE)
-export const babyjubjub: EdDSA = eddsa(BabyJubPoint, blake512)
+
+function poseidonHash (inputs: bigint[]): Uint8Array {
+  // convert output into uint8array
+  console.log('INPUTS', inputs)
+  const hash = poseidon(inputs, [], 1)
+  return BabyJubPoint.Fp.toBytes(hash)
+}
+
+export const babyjubjub = eddsa(BabyJubPoint, blake512, poseidonHash)
 
 type Affine = { x: bigint; y: bigint }
 
@@ -48,7 +59,7 @@ export class EddsaPoseidon {
   constructor () {
     // Base8 = 8 * BASE, stored as affine
     this.Base8 = this.Point.BASE.multiplyUnsafe(8n).toAffine() as Affine
-    this.poseidon = buildPoseidon()
+    this.poseidon = poseidon
   }
 
   toMontgomery (a: bigint | Uint8Array) {

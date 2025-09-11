@@ -2,7 +2,7 @@
 // @ts-ignore -typefix
 import { Scalar } from 'ffjavascript'
 
-import { Fr } from './bn254'
+import { Fr } from '../bn254'
 // https://github.com/paulmillr/noble-curves/issues/168
 // TODO maybe reimplement with twistedEdwards noble
 

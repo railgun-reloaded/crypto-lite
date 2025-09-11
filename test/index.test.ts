@@ -16,10 +16,10 @@ import { expect } from 'chai'
 
 import { poseidon, poseidonHex, privateKeyToPublicKey, signPoseidon, verifyEDDSA } from '../src'
 // import { NobleFr } from '../src/bn254'
+import { createPoseidon } from '../src/archive/poseidon-noble'
 import type { EddsaPoseidon } from '../src/eddsa-noble'
-import buildEddsaPoseidon2 from '../src/eddsa-noble'
+import buildEddsaPoseidon2, { babyjubjub } from '../src/eddsa-noble'
 import { bigIntToUint8Array, uint8ArrayToBigInt } from '../src/math'
-import { createPoseidon } from '../src/poseidon-noble'
 import opts from '../src/poseidon_constants_opt'
 
 describe('Crypto-Lite module', () => {
@@ -396,26 +396,26 @@ describe('Crypto-Lite module', () => {
     // const convert = (arr: any) => {
     //   return BigInt('0x' + uint8ArrayToBigInt(arr).toString(16));
     // }
-    // const expected = [
-    //   new Uint8Array([
-    //     39, 189, 32, 168, 242, 83, 145, 186,
-    //     218, 211, 193, 6, 165, 189, 41, 156,
-    //     58, 161, 55, 72, 45, 157, 124, 232,
-    //     188, 88, 106, 105, 191, 37, 113, 62
-    //   ]),
-    //   new Uint8Array([
-    //     0, 18, 216, 188, 251, 179, 0, 93,
-    //     10, 95, 124, 157, 37, 170, 112, 233,
-    //     47, 106, 169, 129, 48, 112, 151, 91,
-    //     227, 194, 15, 56, 6, 96, 86, 143
-    //   ]),
-    //   new Uint8Array([
-    //     221, 193, 178, 218, 65, 42, 58, 45,
-    //     58, 34, 24, 85, 14, 16, 30, 88,
-    //     160, 174, 191, 220, 36, 35, 130, 208,
-    //     111, 67, 150, 8, 188, 174, 13, 5
-    //   ])
-    // ]
+    const expected = [
+      new Uint8Array([
+        39, 189, 32, 168, 242, 83, 145, 186,
+        218, 211, 193, 6, 165, 189, 41, 156,
+        58, 161, 55, 72, 45, 157, 124, 232,
+        188, 88, 106, 105, 191, 37, 113, 62
+      ]),
+      new Uint8Array([
+        0, 18, 216, 188, 251, 179, 0, 93,
+        10, 95, 124, 157, 37, 170, 112, 233,
+        47, 106, 169, 129, 48, 112, 151, 91,
+        227, 194, 15, 56, 6, 96, 86, 143
+      ]),
+      new Uint8Array([
+        221, 193, 178, 218, 65, 42, 58, 45,
+        58, 34, 24, 85, 14, 16, 30, 88,
+        160, 174, 191, 220, 36, 35, 130, 208,
+        111, 67, 150, 8, 188, 174, 13, 5
+      ])
+    ]
     // const signature = signPoseidon(privateKey, message)
     // // REMEMBER REVERSE MODIFIES THE ACTUAL OBJ
     // expect(signature).to.deep.equal(expected)
@@ -430,20 +430,27 @@ describe('Crypto-Lite module', () => {
 
     // expect(verified, 'Signature not verified.').to.eq(true)
     // console.log('msg', message)
-    const newsignature = eddsa.signPoseidon(privateKey, message)
+    const sigg = babyjubjub.sign(message, privateKey)
+    const pubkey = babyjubjub.getPublicKey(privateKey)
+    const vvv = babyjubjub.verify(sigg, message, pubkey)
+    console.log(sigg, 'SIGG', vvv)
+    const signature = eddsa.signPoseidon(privateKey, message.reverse())
     // console.log('msg', message)
-    // console.log('signature', signature)
+    console.log('signature', signature)
     // const formatted = newsignature.map(bigIntToUint8Array)
-    // const formatted = [
-    //   bigIntToUint8Array(newsignature[0]!).reverse(),
-    //   bigIntToUint8Array(newsignature[1]!).reverse(),
-    //   bigIntToUint8Array(newsignature[2]!)
-    // ]
+    const formatted = [
+      bigIntToUint8Array(signature.R8.x).reverse(),
+      bigIntToUint8Array(signature.R8.y).reverse(),
+      bigIntToUint8Array(signature.S)
+    ]
+    expect(formatted).to.deep.equal(expected)
+
+    console.log(formatted)
     // console.log('newsignature', formatted)
     // console.log('newsignature', formatted)
     const a = { x: uint8ArrayToBigInt(key[0]), y: uint8ArrayToBigInt(key[1]) }
     // console.log('a', a)
-    const newVerified = eddsa.verifyPoseidon(message, newsignature, a)
+    const newVerified = eddsa.verifyPoseidon(message, signature, a)
 
     expect(newVerified, 'New Signature not verified.').to.eq(true)
   })

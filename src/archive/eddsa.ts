@@ -4,8 +4,9 @@ import createBlakeHash from 'blake-hash'
 // @ts-ignore: type-error
 import { Scalar } from 'ffjavascript'
 
+import buildPoseidon from '../poseidon_opt.js'
+
 import buildBabyJub from './babyjub.js'
-import buildPoseidon from './poseidon_opt.js'
 
 class Eddsa {
   babyJub: any

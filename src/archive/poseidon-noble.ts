@@ -5,7 +5,7 @@
 
 import type { IField } from '@noble/curves/abstract/modular'
 
-import poseidonConstants from '../src/poseidon_constants_opt'
+import poseidonConstants from '../../src/poseidon_constants_opt'
 // const scalar = 21888242871839275222246405745257275088548364400416034343698204186575808495617n;
 
 const N_ROUNDS_F = 8
