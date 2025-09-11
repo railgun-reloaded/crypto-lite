@@ -46,10 +46,10 @@ function leBytesToBigint (u8: Uint8Array): bigint {
 
 export class EddsaPoseidon {
   private readonly Point = BabyJubPoint                 // noble Point constructor
-  public readonly Fp = this.Point.Fp                   // base field
-  public readonly Fr = this.Point.Fn                   // base field
   private readonly n = this.Point.CURVE().n             // subgroup order
   private readonly Base8: Affine                        // 8*G (affine)
+  public readonly Fp = this.Point.Fp                    // base field
+  public readonly Fr = this.Point.Fn                    // base field
   public readonly poseidon: any
 
   constructor () {
