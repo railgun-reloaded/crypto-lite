@@ -5,21 +5,27 @@ import {
 } from '@noble/ed25519'
 
 import buildEddsa from './eddsa-noble'
-import { bigIntToUint8Array, uint8ArrayToBigInt } from './math'
 
 interface CircomlibSignature {
   R8: [Uint8Array, Uint8Array];
   S: bigint;
 }
 
-// export const SCALAR_FIELD =
-// 21888242871839275222246405745257275088548364400416034343698204186575808495617n
 const eddsaBuild = buildEddsa()
 
 const poseidonBuild = eddsaBuild.poseidon
 const wrapperModule = {
   eddsaBuild,
   poseidonBuild
+}
+
+function bigIntToUint8Array (num: bigint) {
+  return eddsaBuild.toBytes(num)
+}
+
+// Convert Uint8Array to BigInt (little-endian)
+function uint8ArrayToBigInt (buf: Uint8Array) {
+  return eddsaBuild.fromBytes(buf)
 }
 
 const poseidon = (inputs: Uint8Array[]) => {
@@ -88,6 +94,8 @@ const getPublicViewingKey = (
 }
 
 export {
+  bigIntToUint8Array,
+  uint8ArrayToBigInt,
   getPublicKey,
   getPublicSpendingKey,
   getPublicViewingKey,

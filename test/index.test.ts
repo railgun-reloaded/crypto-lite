@@ -1,12 +1,9 @@
-// import assert from 'node:assert/strict'
-
 import { PerformanceObserver, performance } from 'node:perf_hooks'
 import { before, describe, it } from 'node:test'
 
 import { expect } from 'chai'
 
-import { poseidon, poseidonHex, privateKeyToPublicKey, signPoseidon, verifyEDDSA } from '../src'
-import { bigIntToUint8Array, uint8ArrayToBigInt } from '../src/math'
+import { bigIntToUint8Array, poseidon, poseidonHex, privateKeyToPublicKey, signPoseidon, uint8ArrayToBigInt, verifyEDDSA } from '../src'
 
 describe('Crypto-Lite module', () => {
   before(async () => {
