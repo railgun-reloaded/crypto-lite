@@ -65,7 +65,7 @@ export function createPoseidon (opts: {
   // }
 
   function getConstants (t: number) {
-    const c = C[t - 2]!.map(BigInt)
+    const c = C[t - 2]!
     const s = S[t - 2]!
     const m = M[t - 2]!
     const p = P[t - 2]!
@@ -99,20 +99,22 @@ export function createPoseidon (opts: {
     return state
   }
 
-  function permute (_state: bigint[], t: number): bigint[] {
+  function permute (_state: bigint[]): bigint[] {
+    const t = _state.length
     const nRoundsP = N_ROUNDS_P[t - 2]
 
     const { c, m, p, s } = getConstants(t)
     let state = _state
     for (let r = 0; r < nRoundsF / 2 - 1; r++) {
       state = sBox(state)
-      state = addRoundConstants(state, r + 1, c)
+      state = addRoundConstants(state, t * (r + 1), c)
       state = reduceConstant(state, m)
     }
 
     state = sBox(state)
-    state = addRoundConstants(state, (nRoundsF / 2 - 1 + 1), c)
+    state = addRoundConstants(state, t * (nRoundsF / 2 - 1 + 1), c)
     state = reduceConstant(state, p)
+    // compute main hash
     for (let r = 0; r < nRoundsP!; r++) {
       state[0] = pow5(state[0]!)
       state[0] = Fp.add(state[0], c[(nRoundsF / 2 + 1) * t + r])
@@ -127,11 +129,13 @@ export function createPoseidon (opts: {
       }
       state[0] = s0
     }
+    // final round
     for (let r = 0; r < nRoundsF / 2 - 1; r++) {
       state = sBox(state)
-      state = state.map((a, i) =>
-        Fp.add(a, c[(nRoundsF / 2 + 1) * t + nRoundsP! + r * t + i])
-      )
+      state = addRoundConstants(state, ((nRoundsF / 2 + 1) * t + nRoundsP! + r * t), c)
+      // state = state.map((a, i) =>
+      //   Fp.add(a, c[(nRoundsF / 2 + 1) * t + nRoundsP! + r * t + i])
+      // )
       state = reduceConstant(state, m)
     }
 
@@ -146,9 +150,8 @@ export function createPoseidon (opts: {
     if (inputs.length === 0) {
       throw new Error(`Poseidon: invalid inputs got ${inputs.length}`)
     }
-    const t = inputs.length + 1
     let state = initializeState(inputs)
-    state = permute(state, t)
+    state = permute(state)
     return state[0]
   }
 
