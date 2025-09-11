@@ -78,11 +78,11 @@ export const signPoseidon = (
     throw new Error('Invalid')
   }
   // Get montgomery representation
-  // const montgomery = eddsaBuild.F.toMontgomery(
-  //   new Uint8Array(message).reverse()
-  // )
+  const montgomery = eddsaBuild.toMontgomery(
+    new Uint8Array(message).reverse()
+  )
   // Sign
-  const sig = eddsaBuild.signPoseidon(key, message)
+  const sig = eddsaBuild.signPoseidon(key, montgomery)
   // console.log('SIGNED', sig)
   // Convert R8 elements from montgomery and to BE
   const r8 = sig.R8
@@ -100,7 +100,10 @@ export const verifyEDDSA = (message: Uint8Array, signature: CircomlibSignature, 
   if (typeof eddsaBuild === 'undefined') {
     throw new Error('Invalid')
   }
-  console.log('SIGGGGGG', signature)
+  const montgomery = eddsaBuild.fromMontgomery(
+    new Uint8Array(message).reverse()
+  )
+  // console.log('SIGGGGGG', signature)
   //  use raw values
   const r8 = signature.R8.map((element: any) => uint8ArrayToBigInt(element.reverse()))
   const newSig = {
@@ -109,7 +112,7 @@ export const verifyEDDSA = (message: Uint8Array, signature: CircomlibSignature, 
   }
   const newPubKey = pubkey.map((element: any) => uint8ArrayToBigInt(element.reverse()))
 
-  return eddsaBuild.verifyPoseidon(message, newSig, { x: newPubKey[0]!, y: newPubKey[1]! })
+  return eddsaBuild.verifyPoseidon(montgomery, newSig, { x: newPubKey[0]!, y: newPubKey[1]! })
 }
 
 // used for getPublicSpendingKey

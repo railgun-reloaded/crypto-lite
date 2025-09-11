@@ -93,7 +93,7 @@ export class EddsaPoseidon {
     // console.log("composeBuff new", compose)
     compose.set(sBuff.subarray(32, 64), 0)
     // console.log("composeBuff new", compose)
-    compose.set(msg.reverse(), 32)
+    compose.set(msg, 32)
     // console.log("composeBuff new", compose)
 
     const r = leBytesToBigint(blake512(compose)) % this.n
@@ -118,7 +118,7 @@ export class EddsaPoseidon {
     const add = r + mul
     const S = add % subOrder // % this.Point.Fn.ORDER
     // reorder inputs
-    msg.reverse()
+    // msg.reverse()
     return { R8, S }
     // return [R8.x, R8.y, S]
   }
@@ -140,8 +140,8 @@ export class EddsaPoseidon {
     if (!Ap.multiplyUnsafe(subOrder).equals(this.Point.ZERO)) return false
     // console.log("PASSES SUBGROUP CHECKS")
     // requires the msg.reverse
-    const msgField = this.Fp.create(leBytesToBigint(msg.reverse()))
-    msg.reverse()
+    const msgField = this.Fp.create(leBytesToBigint(msg))
+    // msg.reverse()
     const hm = this.poseidon([R8.x, R8.y, A.x, A.y, msgField]) % this.n
     const hms = this.Point.Fp.create(hm)
 
