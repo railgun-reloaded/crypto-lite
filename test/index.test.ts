@@ -12,6 +12,7 @@ import { before, describe, it } from 'node:test'
 //   // poseidon as ppp
 // } from '@noble/curves/abstract/poseidon.js'
 import { expect } from 'chai'
+import { performance, PerformanceObserver } from 'node:perf_hooks'
 
 import { poseidon, poseidonHex, privateKeyToPublicKey, signPoseidon, verifyEDDSA } from '../src'
 // import { NobleFr } from '../src/bn254'
@@ -21,8 +22,32 @@ import { createPoseidon } from '../src/poseidon-noble'
 import opts from '../src/poseidon_constants_opt'
 
 describe('Crypto-Lite module', () => {
+  let eddsa, pos3: any
+
   before(async () => {
     // before setup
+    const obs = new PerformanceObserver((items) => {
+      items.getEntries().forEach((entry) => {
+        console.log(`${entry.name}: ${entry.duration}ms`)
+      })
+    })
+    obs.observe({ entryTypes: ['measure'] })
+    eddsa = buildEddsaPoseidon2()
+
+    const opts2 = {
+      Fp: eddsa.Fp,
+      // rate,
+      // capacity,
+      // t: rate + capacity,
+      // sboxPower: 5n,
+      // mds: mds1,
+      // roundConstants: roundConstants1,
+      // roundsFull,
+      // roundsPartial,
+    }
+    // console.log(opts2)
+
+    pos3 = createPoseidon(opts2)
   })
   it('computes nullifier', () => {
     const input = new Uint8Array([
@@ -42,7 +67,7 @@ describe('Crypto-Lite module', () => {
     expect(poseidon([input])).to.deep.equal(expected)
   })
 
-  it.only('poseidon hashes new ', () => {
+  it('poseidon hashes new ', () => {
     // const input = new Uint8Array([
     //   213, 240, 248, 140, 111, 244, 23, 235,
     //   61, 48, 29, 92, 187, 133, 59, 226,
@@ -61,7 +86,6 @@ describe('Crypto-Lite module', () => {
     // const roundsPartial = 56
     // const mds = opts.M[1]!.map(row => row.map(BigInt)) // t=3
     // const roundConstants1 = opts.C[2]!.map(BigInt)
-    const eddsa = buildEddsaPoseidon2()
     // const { mds, roundConstants } = grainGenConstants({
     //   Fp: eddsa.Fp,
     //   t: rate + capacity,
@@ -85,19 +109,7 @@ describe('Crypto-Lite module', () => {
     //   roundsPartial,
     // }
 
-    const opts2 = {
-      Fp: eddsa.Fp,
-      // rate,
-      // capacity,
-      // t: rate + capacity,
-      // sboxPower: 5n,
-      // mds: mds1,
-      // roundConstants: roundConstants1,
-      // roundsFull,
-      // roundsPartial,
-    }
-    // console.log(opts2)
-    const pos3 = createPoseidon(opts2)
+
 
     // const permutation = ppp(_opts)
     // const sponge = poseidonSponge(_opts)() // use carefully, not specced
@@ -110,13 +122,100 @@ describe('Crypto-Lite module', () => {
     // console.log('output', output)
     // const a = sponge.squeeze(3)
     // console.log('new poseidon', a)
+    performance.mark('start')
     const newpos = pos3.hash([1n])
+    performance.mark('end')
+    performance.measure('poseidon hash new duration', 'start', 'end')
+    console.log('newpos', newpos)
     console.log('newpos', uint8ArrayToBigInt(bigIntToUint8Array(newpos).reverse()))
+    // const ppa = poseidon([
+    //   bigIntToUint8Array(1n),
+    //   // bigIntToUint8Array(0n),
+    //   // bigIntToUint8Array(0n)
+    // ])
+    // console.log('normal poseidon', uint8ArrayToBigInt(ppa))
+    // console.log('sponge a', uint8ArrayToBigInt(bigIntToUint8Array(a[0]!).reverse()))
+    // console.log('p', p)
+  })
+
+  it('poseidon hashes OG ', () => {
+    // const input = new Uint8Array([
+    //   213, 240, 248, 140, 111, 244, 23, 235,
+    //   61, 48, 29, 92, 187, 133, 59, 226,
+    //   69, 42, 2, 146, 162, 37, 2, 192,
+    //   139, 19, 97, 86, 239, 35, 80, 129
+    // ])
+    // const expected = new Uint8Array([
+    //   22, 70, 157, 162, 69, 227, 233, 160,
+    //   41, 212, 29, 163, 49, 10, 67, 11,
+    //   62, 254, 124, 144, 87, 178, 140, 93,
+    //   173, 35, 189, 183, 164, 200, 32, 209
+    // ])
+    // const rate = 1
+    // const capacity = 1
+    // const roundsFull = 8
+    // const roundsPartial = 56
+    // const mds = opts.M[1]!.map(row => row.map(BigInt)) // t=3
+    // const roundConstants1 = opts.C[2]!.map(BigInt)
+    // const eddsa = buildEddsaPoseidon2()
+    // const { mds, roundConstants } = grainGenConstants({
+    //   Fp: eddsa.Fp,
+    //   t: rate + capacity,
+    //   roundsFull,
+    //   roundsPartial,
+    // })
+    // console.log(roundConstants.length)
+    // const roundConstants = opts.C.map(a => {
+    //   return a.map(BigInt).slice(0, rate + capacity)
+    // })
+
+    // const _opts = {
+    //   Fp: eddsa.Fp,
+    //   rate,
+    //   capacity,
+    //   t: rate + capacity,
+    //   sboxPower: 5,
+    //   mds,
+    //   roundConstants,
+    //   roundsFull,
+    //   roundsPartial,
+    // }
+
+    // const opts2 = {
+    //   Fp: eddsa.Fp,
+    //   // rate,
+    //   // capacity,
+    //   // t: rate + capacity,
+    //   // sboxPower: 5n,
+    //   // mds: mds1,
+    //   // roundConstants: roundConstants1,
+    //   // roundsFull,
+    //   // roundsPartial,
+    // }
+    // // console.log(opts2)
+    // const pos3 = createPoseidon(opts2)
+
+    // const permutation = ppp(_opts)
+    // const sponge = poseidonSponge(_opts)() // use carefully, not specced
+
+    // console.log(permutation, sponge)
+    // const p = permutation([1n, 0n])
+    // const output = sponge.hash([1n, 0n, 0n])
+    // sponge.absorb([p[0]!])
+    // sponge.absorb(p)
+    // console.log('output', output)
+    // const a = sponge.squeeze(3)
+    // console.log('new poseidon', a)
+    // const newpos = pos3.hash([1n])
+    // console.log('newpos', uint8ArrayToBigInt(bigIntToUint8Array(newpos).reverse()))
+    performance.mark('start')
     const ppa = poseidon([
       bigIntToUint8Array(1n),
       // bigIntToUint8Array(0n),
       // bigIntToUint8Array(0n)
     ])
+    performance.mark('end')
+    performance.measure('poseidon hash old duration', 'start', 'end')
     console.log('normal poseidon', uint8ArrayToBigInt(ppa))
     // console.log('sponge a', uint8ArrayToBigInt(bigIntToUint8Array(a[0]!).reverse()))
     // console.log('p', p)

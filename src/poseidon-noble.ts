@@ -72,12 +72,7 @@ export function createPoseidon (opts: {
     return { c, s, m, p }
   }
 
-  function addRoundConstants (state: bigint[], round: number, roundConstants: bigint[]): bigint[] {
-    return state.map((a, i) => {
-      return Fp.add(a, ((roundConstants[round * state.length + i]!)))
-    })
-  }
-
+  
   function initializeState (inputs: bigint[]) {
     const initState = Fp.ZERO
     const t = inputs.length + 1
@@ -85,6 +80,9 @@ export function createPoseidon (opts: {
     let state = [initState, ...inputs.map((a) => Fp.create(Fp.fromBytes(Fp.toBytes(a).reverse()))), ...new Array(t - 2).fill(0n)]
     state = state.map((a, i) => Fp.add(a, ((c[i]!))))
     return state
+  }
+  function addRoundConstants (state: bigint[], round: number, c: bigint[]): bigint[] {
+    return state.map((a, i) => Fp.add(a, ((c[round + i]!))))
   }
 
   function sBox (_state: bigint[]) {

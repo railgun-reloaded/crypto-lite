@@ -112,6 +112,7 @@ export class EddsaPoseidon {
 
     // const S = (r + hm * s) % this.Fp.ORDER
     const subOrder = this.Fr.ORDER >> 3n
+    // console.log('subOrder', subOrder, this.Point.CURVE())
     // console.log('this.fp.order', this.Fp.ORDER, this.Fr.ORDER, subOrder)
     const mul = hms * s
     const add = r + mul
