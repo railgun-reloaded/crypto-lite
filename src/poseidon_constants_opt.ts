@@ -24805,4 +24805,4 @@ export default {
       '0x14c09d155c5d428198c234b553da338f227cbc12b0e42f2b9ce71563ee1495c0',
     ],
   ],
-};
+}
