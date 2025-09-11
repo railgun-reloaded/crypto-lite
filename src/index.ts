@@ -1,7 +1,5 @@
-/* eslint-disable import-x/group-exports */
 /* eslint-disable jsdoc/require-jsdoc */
 
-// @ts-ignore TODO: typefix
 import {
   getPublicKey
 } from '@noble/ed25519'
@@ -14,30 +12,30 @@ interface CircomlibSignature {
   S: bigint;
 }
 
-export const SCALAR_FIELD =
-  21888242871839275222246405745257275088548364400416034343698204186575808495617n
-export const eddsaBuild = buildEddsa()
+// export const SCALAR_FIELD =
+// 21888242871839275222246405745257275088548364400416034343698204186575808495617n
+const eddsaBuild = buildEddsa()
 
-export const poseidonBuild = eddsaBuild.poseidon
-export const wrapperModule = {
+const poseidonBuild = eddsaBuild.poseidon
+const wrapperModule = {
   eddsaBuild,
   poseidonBuild
 }
 
-export const poseidon = (inputs: Uint8Array[]) => {
+const poseidon = (inputs: Uint8Array[]) => {
   // TODO: wasm import
   const result = poseidonBuild(inputs)
   return bigIntToUint8Array(result).reverse()
 }
 
-export const poseidonHex = (inputs: string[], toHex = false) => {
+const poseidonHex = (inputs: string[], toHex = false) => {
   // TODO: sanitize inputs 32 bytes
   const result = poseidon(inputs.map(BigInt).map(bigIntToUint8Array))
   const output = uint8ArrayToBigInt(result)
   return toHex ? output.toString(16) : output
 }
 
-export const signPoseidon = (
+const signPoseidon = (
   key: Uint8Array,
   message: Uint8Array
 ): [Uint8Array, Uint8Array, Uint8Array] => {
@@ -52,7 +50,7 @@ export const signPoseidon = (
   return [bigIntToUint8Array(r8.x).reverse(), bigIntToUint8Array(r8.y).reverse(), bigIntToUint8Array(sig.S as any as bigint)]
 }
 
-export const verifyEDDSA = (message: Uint8Array, signature: CircomlibSignature, pubkey: [Uint8Array, Uint8Array]) => {
+const verifyEDDSA = (message: Uint8Array, signature: CircomlibSignature, pubkey: [Uint8Array, Uint8Array]) => {
   if (typeof eddsaBuild === 'undefined') {
     throw new Error('Invalid')
   }
@@ -69,7 +67,7 @@ export const verifyEDDSA = (message: Uint8Array, signature: CircomlibSignature, 
   return eddsaBuild.verifyPoseidon(montgomery, newSig, { x: newPubKey[0]!, y: newPubKey[1]! })
 }
 
-export const privateKeyToPublicKey = (
+const privateKeyToPublicKey = (
   privateKey: Uint8Array
 ): [Uint8Array, Uint8Array] | any => {
   const key = eddsaBuild
@@ -78,13 +76,27 @@ export const privateKeyToPublicKey = (
   return key
 }
 
-export const getPublicSpendingKey = (privateKey: Uint8Array): [Uint8Array, Uint8Array] => {
+const getPublicSpendingKey = (privateKey: Uint8Array): [Uint8Array, Uint8Array] => {
   if (privateKey.length !== 32) throw Error('Invalid private key length')
   return privateKeyToPublicKey(privateKey)
 }
 
-export const getPublicViewingKey = (
+const getPublicViewingKey = (
   privateViewingKey: Uint8Array
 ): Uint8Array => {
   return getPublicKey(privateViewingKey)
+}
+
+export {
+  getPublicKey,
+  getPublicSpendingKey,
+  getPublicViewingKey,
+  privateKeyToPublicKey,
+  signPoseidon,
+  verifyEDDSA,
+  poseidon,
+  poseidonHex,
+  eddsaBuild,
+  poseidonBuild,
+  wrapperModule
 }

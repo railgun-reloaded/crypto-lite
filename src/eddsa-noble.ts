@@ -1,11 +1,9 @@
-/* eslint-disable import-x/exports-last */
-/* eslint-disable import-x/group-exports */
 /* eslint-disable jsdoc/require-jsdoc */
 import { edwards } from '@noble/curves/abstract/edwards'
 import type { EdwardsOpts } from '@noble/ed25519'
 import { blake512 } from '@noble/hashes/blake1'
 
-import { eddsa } from './edwards.js'
+// import { eddsa } from './edwards.js'
 import buildPoseidon from './poseidon_opt.js'
 
 const poseidon = buildPoseidon()
@@ -20,14 +18,14 @@ const babyjubjubCURVE: EdwardsOpts = {
   Gy: 0x0c19139cb84c680a6e14116da06056174a0cfa121e6e5c2450f87d64fc000001n,
 }
 
-export const BabyJubPoint = edwards(babyjubjubCURVE)
+const BabyJubPoint = edwards(babyjubjubCURVE)
 
-function poseidonHash (inputs: bigint[]): Uint8Array {
-  const hash = poseidon(inputs, [], 1)
-  return BabyJubPoint.Fn.toBytes(hash)
-}
+// function poseidonHash (inputs: bigint[]): Uint8Array {
+//   const hash = poseidon(inputs, [], 1)
+//   return BabyJubPoint.Fn.toBytes(hash)
+// }
 
-export const babyjubjub = eddsa(BabyJubPoint, blake512, poseidonHash)
+// const babyjubjub = eddsa(BabyJubPoint, blake512, poseidonHash)
 
 type Affine = { x: bigint; y: bigint }
 
@@ -44,7 +42,7 @@ function leBytesToBigint (u8: Uint8Array): bigint {
   return n
 }
 
-export class EddsaPoseidon {
+class EddsaPoseidon {
   private readonly Point = BabyJubPoint                 // noble Point constructor
   private readonly n = this.Point.CURVE().n             // subgroup order
   private readonly Base8: Affine                        // 8*G (affine)
@@ -141,3 +139,5 @@ export class EddsaPoseidon {
 export default function buildEddsaPoseidon () {
   return new EddsaPoseidon()
 }
+
+export { EddsaPoseidon, BabyJubPoint }
