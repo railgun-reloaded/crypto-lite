@@ -36,7 +36,7 @@ describe('Crypto-Lite module', () => {
     eddsa = buildEddsaPoseidon2()
 
     const opts2 = {
-      Fp: eddsa.Fp,
+      Fp: eddsa.Fr,
       // rate,
       // capacity,
       // t: rate + capacity,
@@ -126,13 +126,13 @@ describe('Crypto-Lite module', () => {
     performance.mark('end')
     performance.measure('poseidon hash new duration', 'start', 'end')
     console.log('newpos', newpos)
-    console.log('newpos', uint8ArrayToBigInt(bigIntToUint8Array(newpos).reverse()))
-    // const ppa = poseidon([
-    //   bigIntToUint8Array(1n),
-    //   // bigIntToUint8Array(0n),
-    //   // bigIntToUint8Array(0n)
-    // ])
-    // console.log('normal poseidon', uint8ArrayToBigInt(ppa))
+    console.log('newpos', uint8ArrayToBigInt(bigIntToUint8Array(newpos)))
+    const ppa = poseidon([
+      bigIntToUint8Array(1n),
+      // bigIntToUint8Array(0n),
+      // bigIntToUint8Array(0n)
+    ])
+    console.log('normal poseidon', uint8ArrayToBigInt(ppa))
     // console.log('sponge a', uint8ArrayToBigInt(bigIntToUint8Array(a[0]!).reverse()))
     // console.log('p', p)
   })

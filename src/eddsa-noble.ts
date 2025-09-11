@@ -28,7 +28,7 @@ function poseidonHash (inputs: bigint[]): Uint8Array {
   // convert output into uint8array
   console.log('INPUTS', inputs)
   const hash = poseidon(inputs, [], 1)
-  return BabyJubPoint.Fp.toBytes(hash)
+  return BabyJubPoint.Fn.toBytes(hash)
 }
 
 export const babyjubjub = eddsa(BabyJubPoint, blake512, poseidonHash)
@@ -50,7 +50,7 @@ function leBytesToBigint (u8: Uint8Array): bigint {
 
 export class EddsaPoseidon {
   private readonly Point = BabyJubPoint                 // noble Point constructor
-  public readonly Fp = this.Point.Fp                   // base field
+  // public readonly Fp = this.Point.Fp                   // base field
   public readonly Fr = this.Point.Fn                   // base field
   private readonly n = this.Point.CURVE().n             // subgroup order
   private readonly Base8: Affine                        // 8*G (affine)
@@ -114,11 +114,11 @@ export class EddsaPoseidon {
 
     // Reduce msg into Fp (BN254) via Fp.create
 
-    const msgField = this.Fp.create(leBytesToBigint(msg))
+    const msgField = this.Fr.create(leBytesToBigint(msg))
 
     const hm = this.poseidon([R8.x, R8.y, A.x, A.y, msgField]) % this.n
     // console.log("hm new", hm)
-    const hms = this.Point.Fp.create(hm)
+    const hms = this.Fr.create(hm)
     // console.log('hms new', hms)
 
     // const S = (r + hm * s) % this.Fp.ORDER
@@ -151,10 +151,10 @@ export class EddsaPoseidon {
     if (!Ap.multiplyUnsafe(subOrder).equals(this.Point.ZERO)) return false
     // console.log("PASSES SUBGROUP CHECKS")
     // requires the msg.reverse
-    const msgField = this.Fp.create(leBytesToBigint(msg))
+    const msgField = this.Fr.create(leBytesToBigint(msg))
     // msg.reverse()
     const hm = this.poseidon([R8.x, R8.y, A.x, A.y, msgField]) % this.n
-    const hms = this.Point.Fp.create(hm)
+    const hms = this.Fr.create(hm)
 
     const left = this.Point.fromAffine(this.Base8)
       .multiplyUnsafe(S % subOrder)
