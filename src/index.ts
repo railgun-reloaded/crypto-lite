@@ -52,6 +52,7 @@ const signPoseidon = (
   )
   const sig = eddsaBuild.signPoseidon(key, montgomery)
   const r8 = sig.R8
+  // TODO: output S as bigint?
   return [bigIntToUint8Array(r8.x).reverse(), bigIntToUint8Array(r8.y).reverse(), bigIntToUint8Array(sig.S as any as bigint)]
 }
 

@@ -1,7 +1,7 @@
+import assert from 'node:assert'
 import { PerformanceObserver, performance } from 'node:perf_hooks'
 import { before, describe, it } from 'node:test'
 
-import { expect } from 'chai'
 
 import { bigIntToUint8Array, poseidon, poseidonHex, privateKeyToPublicKey, signPoseidon, uint8ArrayToBigInt, verifyEDDSA } from '../src'
 
@@ -28,7 +28,8 @@ describe('Crypto-Lite module', () => {
       62, 254, 124, 144, 87, 178, 140, 93,
       173, 35, 189, 183, 164, 200, 32, 209
     ])
-    expect(poseidon([input])).to.deep.equal(expected)
+    assert.deepStrictEqual(poseidon([input]), expected)
+    // expect(poseidon([input])).to.deep.equal(expected)
   })
 
   it('poseidon hashes OG ', () => {
@@ -36,7 +37,8 @@ describe('Crypto-Lite module', () => {
     const hash = poseidon([bigIntToUint8Array(1n)])
     performance.mark('end')
     performance.measure('poseidon hash duration', 'start', 'end')
-    expect(hash).to.deep.equal((bigIntToUint8Array(67770771820894602869173624865523212694969471050530985054131446787965899093267n)))
+    assert.deepStrictEqual(hash, (bigIntToUint8Array(67770771820894602869173624865523212694969471050530985054131446787965899093267n)))
+    // expect(hash).to.deep.equal((bigIntToUint8Array(67770771820894602869173624865523212694969471050530985054131446787965899093267n)))
   })
 
   it('computes hex nullifier', () => {
@@ -54,8 +56,12 @@ describe('Crypto-Lite module', () => {
     ])
     const hexInput = uint8ArrayToBigInt(input).toString(16)
     const hexExpected = uint8ArrayToBigInt(expected)
-    expect(poseidonHex(['0x' + hexInput])).to.deep.equal(hexExpected)
-    expect(poseidonHex(['0x' + hexInput], true)).to.deep.equal(hexExpected.toString(16))
+    const hash = poseidonHex(['0x' + hexInput])
+    const hashHex = poseidonHex(['0x' + hexInput], true)
+    assert.strictEqual(hash, hexExpected)
+    assert.strictEqual(hashHex, hexExpected.toString(16))
+    // expect(poseidonHex(['0x' + hexInput])).to.deep.equal(hexExpected)
+    // expect(poseidonHex(['0x' + hexInput], true)).to.deep.equal(hexExpected.toString(16))
   })
 
   it('Should sign poseidon', async () => {
@@ -72,7 +78,8 @@ describe('Crypto-Lite module', () => {
       173, 35, 189, 183, 164, 200, 32, 209
     ])
     const signature = signPoseidon(privateKey, message)
-    expect(signature, 'Signature not generated.')
+    assert(signature, 'Signature not generated')
+    // expect(signature, 'Signature not generated.')
   })
 
   it('Should sign & verify poseidon', async () => {
@@ -110,14 +117,16 @@ describe('Crypto-Lite module', () => {
       ])
     ]
     const signature = signPoseidon(privateKey, message)
-    expect(signature).to.deep.equal(expected)
-    expect(signature, 'Signature not generated.')
+    assert.deepStrictEqual(signature, expected)
+    assert(signature, 'Signature not generated')
+    // expect(signature).to.deep.equal(expected)
+    // expect(signature, 'Signature not generated.')
     const verified = verifyEDDSA(message, {
       R8: [signature[0], signature[1]],
       // @ts-ignore
       S: signature[2],
     }, pubKey)
-
-    expect(verified, 'Signature not verified.').to.eq(true)
+    assert(verified, 'Signature not verified.')
+    // expect(verified, 'Signature not verified.').to.eq(true)
   })
 })
