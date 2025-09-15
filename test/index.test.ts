@@ -2,7 +2,6 @@ import assert from 'node:assert'
 import { PerformanceObserver, performance } from 'node:perf_hooks'
 import { before, describe, it } from 'node:test'
 
-
 import { bigIntToUint8Array, poseidon, poseidonHex, privateKeyToPublicKey, signPoseidon, uint8ArrayToBigInt, verifyEDDSA } from '../src'
 
 describe('Crypto-Lite module', () => {

@@ -247,16 +247,15 @@ const Fr: FrInterface = {
    * @param offset - The offset in the buffer to start writing
    * @param value - The value to write
    */
-  toRprLE: (buffer: Uint8Array, offset: number, value: FieldInput | Uint8Array) => {
-    let bytes: Uint8Array
-    if (value instanceof Uint8Array) {
-      bytes = value
-    } else {
-      bytes = NobleFr.toBytes(toIField(value))
-    }
-    const leBytes = new Uint8Array(bytes).reverse()
-    const copyLength = Math.min(leBytes.length, buffer.length - offset)
-    buffer.set(leBytes.slice(0, copyLength), offset)
+  toRprLE: (buffer, offset, value) => {
+    const bytes = value instanceof Uint8Array
+      ? value
+      : NobleFr.toBytes(toIField(value))
+    const le = new Uint8Array(32)
+    le.set(bytes)
+    le.reverse()
+    const copyLen = Math.min(32, buffer.length - offset)
+    buffer.set(le.subarray(0, copyLen), offset)
   },
 
   /**
@@ -266,14 +265,13 @@ const Fr: FrInterface = {
    * @param length - The number of bytes to read
    * @returns The field element
    */
-  fromRprLE: (buffer: Uint8Array, offset: number = 0, length: number = 32) => {
-    const bytes = buffer.slice(offset, offset + length)
-    // Pad or trim to 32 bytes
-    const paddedBytes = new Uint8Array(32)
-    paddedBytes.set(bytes.slice(0, Math.min(bytes.length, 32)))
-    // Convert little-endian to big-endian for Noble
-    const beBytes = paddedBytes.reverse()
-    return NobleFr.fromBytes(beBytes)
+  fromRprLE: (buffer, offset = 0, length = 32) => {
+    const end = Math.min(buffer.length, offset + length)
+    const slice = buffer.subarray(offset, end)
+    const padded = new Uint8Array(32)
+    padded.set(slice)
+    padded.reverse()
+    return NobleFr.fromBytes(padded)
   },
 
   /**
@@ -319,22 +317,19 @@ const Fr: FrInterface = {
    * @param value - The value to validate
    * @returns True if the value is valid in this field
    */
-  isValid: (value: bigint) => {
-    try {
-      NobleFr.create(value)
-      return true
-    } catch {
-      return false
-    }
-  },
+  isValid: (value: bigint) => value >= 0n && value < NobleFr.ORDER,
 
   /**
    * Generates a random field element.
    * @returns A uniformly random field element
    */
   random: () => {
-    const bytes = randomBytes(32)
-    return NobleFr.fromBytes(bytes)
+    while (true) {
+      const bytes = randomBytes(32)
+      try {
+        return NobleFr.fromBytes(bytes)
+      } catch { /* reject if ≥ ORDER */ }
+    }
   },
 
   /**
@@ -360,10 +355,12 @@ const Fr: FrInterface = {
    * @param b - The modulus
    * @returns The result (a mod b)
    */
-  mod: (a: FieldInput, b: FieldInput) => {
-    const aVal = toIField(a)
+  mod: (a, b) => {
+    const aVal = BigInt(a)
     const bVal = BigInt(b)
-    return aVal % bVal
+    let r = aVal % bVal
+    if (r < 0n) r += bVal
+    return r
   },
 
   /**
