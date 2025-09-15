@@ -11,6 +11,27 @@ const _1n = BigInt(1)
 
 export type PHash = (message: bigint[]) => Uint8Array
 
+/*
+  implementaiton of eddsa-poseidon signing, supply babyjubjubCURVE as Point
+  * currently does not conform to railgun required outputs...
+  * verifies and signs correctly, this is provided as research
+  const babyjubjubCURVE: EdwardsOpts = {
+    p: 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001n,
+    n: 0x30644e72e131a029b85045b68181585d59f76dc1c90770533b94bee1c9093788n,
+    h: 8n,
+    a: 168700n,
+    d: 168696n,
+    Gx: 0x023343e3445b673d38bcba38f25645adb494b1255b1162bb40f41a59f4d4b45en,
+    Gy: 0x0c19139cb84c680a6e14116da06056174a0cfa121e6e5c2450f87d64fc000001n,
+  }
+  const BabyJubPoint = edwards(babyjubjubCURVE)
+  function poseidonHash (inputs: bigint[]): Uint8Array {
+    const hash = poseidon(inputs, [], 1)
+    return BabyJubPoint.Fn.toBytes(hash)
+  }
+  const babyjubjub = eddsa(BabyJubPoint, blake512, poseidonHash)
+*/
+
 export function eddsa (Point: EdwardsPointCons, cHash: FHash, pHash: PHash, eddsaOpts: EdDSAOpts = {}): EdDSA {
   if (typeof cHash !== 'function') throw new Error('"hash" function param is required')
   validateObject(
