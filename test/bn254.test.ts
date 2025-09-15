@@ -49,7 +49,8 @@ describe('Fr (BN254 scalar field)', () => {
   describe('arithmetic', () => {
     it('add/sub/neg are consistent', () => {
       for (let i = 0; i < ITER; i++) {
-        const a = randFr(); const b = randFr()
+        const a = randFr()
+        const b = randFr()
         assert.equal(Fr.add(a, b), (a + b) % P)
         assert.equal(Fr.sub(a, b), (a - b + P) % P)
         assert.equal(Fr.add(a, Fr.neg(a)), 0n)
@@ -58,7 +59,8 @@ describe('Fr (BN254 scalar field)', () => {
 
     it('mul/square consistent', () => {
       for (let i = 0; i < ITER; i++) {
-        const a = randFr(); const b = randFr()
+        const a = randFr()
+        const b = randFr()
         assert.equal(Fr.mul(a, b), (a * b) % P)
         assert.equal(Fr.square(a), (a * a) % P)
       }
@@ -66,7 +68,8 @@ describe('Fr (BN254 scalar field)', () => {
 
     it('inv/div laws', () => {
       for (let i = 0; i < ITER; i++) {
-        const a = randNonZeroFr(); const b = randNonZeroFr()
+        const a = randNonZeroFr()
+        const b = randNonZeroFr()
         assert.equal(Fr.mul(a, Fr.inv(a)), Fr.one)
         assert.equal(Fr.div(a, b), Fr.mul(a, Fr.inv(b)))
       }
@@ -78,7 +81,9 @@ describe('Fr (BN254 scalar field)', () => {
 
     it('pow laws', () => {
       for (let i = 0; i < ITER; i++) {
-        const a = randFr(); const x = BigInt(i % 20); const y = BigInt((i * 7) % 20)
+        const a = randFr()
+        const x = BigInt(i % 20)
+        const y = BigInt((i * 7) % 20)
         assert.equal(Fr.pow(a, 0n), Fr.one)
         assert.equal(Fr.pow(a, x + y), Fr.mul(Fr.pow(a, x), Fr.pow(a, y)))
       }
