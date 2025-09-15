@@ -1,11 +1,26 @@
-/* eslint-disable jsdoc/require-jsdoc */
-
 import {
   getPublicKey
 } from '@noble/ed25519'
 
 import buildEddsa from './eddsa-noble'
 
+/**
+ * Represents a cryptographic signature in the format used by Circomlib.
+ * @example
+ * ```typescript
+ * const signature: CircomlibSignature = {
+ *   R8: [new Uint8Array([1, 2, 3]), new Uint8Array([4, 5, 6])],
+ *   S: 123456789012345678901234567890n
+ * };
+ * ```
+ * @example
+ * ```typescript
+ * function verifySignature(sig: CircomlibSignature, message: string): boolean {
+ *   // Verification logic using sig.R8 and sig.S
+ *   return true;
+ * }
+ * ```
+ */
 interface CircomlibSignature {
   R8: [Uint8Array, Uint8Array];
   S: bigint;
@@ -14,25 +29,76 @@ interface CircomlibSignature {
 const eddsaBuild = buildEddsa()
 
 const poseidonBuild = eddsaBuild.poseidon
+
 const wrapperModule = {
   eddsaBuild,
   poseidonBuild
 }
 
+/**
+ * Converts a BigInt to a Uint8Array representation.
+ * @param num - The BigInt number to convert
+ * @returns A Uint8Array containing the byte representation of the BigInt
+ * @example
+ * ```typescript
+ * const bigNum = 123456789n;
+ * const bytes = bigIntToUint8Array(bigNum);
+ * console.log(bytes); // Uint8Array representation
+ * ```
+ */
 function bigIntToUint8Array (num: bigint) {
   return eddsaBuild.toBytes(num)
 }
 
+/**
+ * Converts a Uint8Array buffer to a BigInt using the eddsa build from bytes method.
+ * @param buf - The Uint8Array buffer to convert to BigInt
+ * @returns The BigInt representation of the input buffer
+ * @example
+ * ```typescript
+ * const buffer = new Uint8Array([1, 2, 3, 4]);
+ * const bigIntValue = uint8ArrayToBigInt(buffer);
+ * console.log(bigIntValue); // BigInt representation of the buffer
+ * ```
+ */
 function uint8ArrayToBigInt (buf: Uint8Array) {
   return eddsaBuild.fromBytes(buf)
 }
 
+/**
+ * Computes the Poseidon hash for an array of byte arrays.
+ * @param inputs - Array of Uint8Array inputs to be hashed
+ * @returns The Poseidon hash result as a reversed Uint8Array
+ * @example
+ * ```typescript
+ * const input1 = new Uint8Array([1, 2, 3]);
+ * const input2 = new Uint8Array([4, 5, 6]);
+ * const hash = poseidon([input1, input2]);
+ * console.log(hash); // Uint8Array containing the hash
+ * ```
+ */
 const poseidon = (inputs: Uint8Array[]) => {
   // TODO: wasm import
   const result = poseidonBuild(inputs)
   return bigIntToUint8Array(result).reverse()
 }
 
+/**
+ * Computes a Poseidon hash of the input strings and returns the result as a BigInt or hex string.
+ * @param inputs - Array of string inputs to be hashed
+ * @param toHex - Optional flag to return the result as a hex string instead of BigInt (default: false)
+ * @returns The Poseidon hash as a BigInt or hex string
+ * @example
+ * ```typescript
+ * const hash = poseidonHex(['123', '456']);
+ * console.log(hash); // Returns BigInt
+ * ```
+ * @example
+ * ```typescript
+ * const hexHash = poseidonHex(['123', '456'], true);
+ * console.log(hexHash); // Returns hex string
+ * ```
+ */
 const poseidonHex = (inputs: string[], toHex = false) => {
   // TODO: sanitize inputs 32 bytes
   const result = poseidon(inputs.map(BigInt).map(bigIntToUint8Array))
@@ -40,6 +106,20 @@ const poseidonHex = (inputs: string[], toHex = false) => {
   return toHex ? output.toString(16) : output
 }
 
+/**
+ * Signs a message using Poseidon hash and EdDSA signature scheme.
+ * @param key - The private key as a Uint8Array used for signing
+ * @param message - The message to be signed as a Uint8Array
+ * @returns A tuple containing three Uint8Arrays: [R8.x, R8.y, S] representing the signature components
+ * @throws {Error} Throws "Invalid" error if eddsaBuild is undefined
+ * @example
+ * ```typescript
+ * const privateKey = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]);
+ * const message = new TextEncoder().encode("Hello World");
+ * const [r8x, r8y, s] = signPoseidon(privateKey, message);
+ * console.log("Signature components:", { r8x, r8y, s });
+ * ```
+ */
 const signPoseidon = (
   key: Uint8Array,
   message: Uint8Array
@@ -56,6 +136,21 @@ const signPoseidon = (
   return [bigIntToUint8Array(r8.x).reverse(), bigIntToUint8Array(r8.y).reverse(), bigIntToUint8Array(sig.S as any as bigint)]
 }
 
+/**
+ * Verifies an EdDSA signature using Poseidon hash function and circomlib
+ * @param message - The message that was signed as a Uint8Array
+ * @param signature - The EdDSA signature containing R8 point and S scalar
+ * @param pubkey - The public key as a tuple of two Uint8Array elements representing x and y coordinates
+ * @returns True if the signature is valid, false otherwise
+ * @throws Error when eddsaBuild is undefined
+ * @example
+ * ```typescript
+ * const message = new Uint8Array([1, 2, 3, 4]);
+ * const signature = { R8: [new Uint8Array([...]), new Uint8Array([...])], S: new Uint8Array([...]) };
+ * const pubkey: [Uint8Array, Uint8Array] = [new Uint8Array([...]), new Uint8Array([...])];
+ * const isValid = verifyEDDSA(message, signature, pubkey);
+ * ```
+ */
 const verifyEDDSA = (message: Uint8Array, signature: CircomlibSignature, pubkey: [Uint8Array, Uint8Array]) => {
   if (typeof eddsaBuild === 'undefined') {
     throw new Error('Invalid')
@@ -73,6 +168,16 @@ const verifyEDDSA = (message: Uint8Array, signature: CircomlibSignature, pubkey:
   return eddsaBuild.verifyPoseidon(montgomery, newSig, { x: newPubKey[0]!, y: newPubKey[1]! })
 }
 
+/**
+ * Converts a private key to its corresponding public key pair using EdDSA cryptography.
+ * @param privateKey - The private key as a Uint8Array to convert
+ * @returns A tuple containing two Uint8Array elements representing the public key components, or any on error
+ * @example
+ * ```typescript
+ * const privateKey = new Uint8Array([1, 2, 3, 4, 5]);
+ * const [pubKeyX, pubKeyY] = privateKeyToPublicKey(privateKey);
+ * ```
+ */
 const privateKeyToPublicKey = (
   privateKey: Uint8Array
 ): [Uint8Array, Uint8Array] | any => {
@@ -82,11 +187,33 @@ const privateKeyToPublicKey = (
   return key
 }
 
+/**
+ * Derives the public spending key pair from a private key.
+ * @param privateKey - A 32-byte private key as Uint8Array
+ * @returns A tuple containing two Uint8Array elements representing the public key pair
+ * @throws Error when private key length is not 32 bytes
+ * @example
+ * ```typescript
+ * const privateKey = new Uint8Array(32).fill(1);
+ * const [pubKey1, pubKey2] = getPublicSpendingKey(privateKey);
+ * ```
+ */
 const getPublicSpendingKey = (privateKey: Uint8Array): [Uint8Array, Uint8Array] => {
   if (privateKey.length !== 32) throw Error('Invalid private key length')
   return privateKeyToPublicKey(privateKey)
 }
 
+/**
+ * Derives a public viewing key from a private viewing key.
+ * @param privateViewingKey - The private viewing key as a Uint8Array
+ * @returns The corresponding public viewing key as a Uint8Array
+ * @example
+ * ```typescript
+ * const privateKey = new Uint8Array([1, 2, 3, 4, 5]);
+ * const publicKey = getPublicViewingKey(privateKey);
+ * console.log(publicKey); // Uint8Array containing the public key
+ * ```
+ */
 const getPublicViewingKey = (
   privateViewingKey: Uint8Array
 ): Uint8Array => {
