@@ -1,9 +1,23 @@
 import {
-  getPublicKey
+  etc,
+  getPublicKey,
+  hashes,
 } from '@noble/ed25519'
+import { sha512 } from '@noble/hashes/sha2'
 
 import buildEddsa from './eddsa-noble'
-
+// Set the SHA-512 implementation
+// https://github.com/paulmillr/noble-ed25519/blob/main/README.md#enabling-synchronous-methods
+// Sync methods can be used now:
+// ed25519.getPublicKey(privKey);
+// ed25519.sign(msg, privKey);
+// ed25519.verify(signature, msg, pubKey);
+/**
+ *1
+ * @param m a
+ * @returns a
+ */
+hashes.sha512 = (...m) => sha512(etc.concatBytes(...m))
 /**
  * Represents a cryptographic signature in the format used by Circomlib.
  * @example
