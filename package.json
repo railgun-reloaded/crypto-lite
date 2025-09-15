@@ -9,7 +9,7 @@
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "pretest": "npm run build",
-    "test": "node --test --experimental-test-coverage --test-reporter=spec --test-coverage-exclude='./dist/test/**' ./dist/test/**/*.test.js",
+    "test": "node --test --experimental-test-coverage --test-reporter=spec --test-coverage-exclude='**/dist/test/**' ./dist/test/**/*.test.js",
     "prepack": "npm run build"
   },
   "repository": {
