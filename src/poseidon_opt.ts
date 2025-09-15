@@ -112,7 +112,7 @@ export default function buildPoseidon () {
    * const stateHash = poseidon([F.e(100)], F.e(200));
    * ```
    */
-  function poseidon (inputs: FieldInput[], initState: any, nOut: any) {
+  function poseidon (inputs: (FieldInput | Uint8Array)[], initState: any, nOut: any) {
     assert(inputs.length > 0)
     assert(inputs.length <= N_ROUNDS_P.length)
     if (initState) {
