@@ -2,7 +2,7 @@ import type { EdwardsOpts } from '@noble/curves/abstract/edwards'
 import { edwards } from '@noble/curves/abstract/edwards'
 import { blake512 } from '@noble/hashes/blake1'
 
-import buildPoseidon from './poseidon_opt.js'
+import buildPoseidon from './poseidon_opt'
 
 const poseidon = buildPoseidon()
 
