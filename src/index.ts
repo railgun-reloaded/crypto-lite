@@ -138,9 +138,10 @@ const signPoseidon = (
   key: Uint8Array,
   message: Uint8Array
 ): [Uint8Array, Uint8Array, Uint8Array] => {
-  if (typeof eddsaBuild === 'undefined') {
-    throw new Error('Invalid')
-  }
+  // TODO: these checks are unecessary, the initialization is no longer async
+  // if (typeof eddsaBuild === 'undefined') {
+  //   throw new Error('Invalid')
+  // }
   const montgomery = eddsaBuild.toMontgomery(
     new Uint8Array(message).reverse()
   )
@@ -166,9 +167,10 @@ const signPoseidon = (
  * ```
  */
 const verifyEDDSA = (message: Uint8Array, signature: CircomlibSignature, pubkey: [Uint8Array, Uint8Array]) => {
-  if (typeof eddsaBuild === 'undefined') {
-    throw new Error('Invalid')
-  }
+  // TODO: these checks are unecessary, the initialization is no longer async
+  // if (typeof eddsaBuild === 'undefined') {
+  //   throw new Error('Invalid')
+  // }
   const montgomery = eddsaBuild.fromMontgomery(
     new Uint8Array(message).reverse()
   )
