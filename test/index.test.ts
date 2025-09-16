@@ -3,7 +3,6 @@ import { PerformanceObserver, performance } from 'node:perf_hooks'
 import { before, describe, it } from 'node:test'
 
 import {
-  bigIntToUint8Array,
   getPublicKey,
   getPublicSpendingKey,
   getPublicViewingKey,
@@ -11,9 +10,9 @@ import {
   poseidonHex,
   privateKeyToPublicKey,
   signPoseidon,
-  uint8ArrayToBigInt,
   verifyEDDSA,
 } from '../src/index'
+import { bigIntToUint8Array, uint8ArrayToBigInt } from '../src/utils'
 
 describe('Crypto-Lite module (production tests)', () => {
   before(() => {
@@ -110,7 +109,7 @@ describe('Crypto-Lite module (production tests)', () => {
     })
 
     it('computes hex nullifier (string inputs => bigint or hex)', () => {
-      const hexInput = uint8ArrayToBigInt(input).toString(16)
+      const hexInput = uint8ArrayToBigInt(input.reverse()).toString(16)
       const hexExpectedBig = uint8ArrayToBigInt(expectedNullifier)
       const hashBig = poseidonHex(['0x' + hexInput])
       const hashHex = poseidonHex(['0x' + hexInput], true)

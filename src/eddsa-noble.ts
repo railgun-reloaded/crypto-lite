@@ -2,9 +2,11 @@ import type { EdwardsOpts } from '@noble/curves/abstract/edwards'
 import { edwards } from '@noble/curves/abstract/edwards'
 import { blake512 } from '@noble/hashes/blake1'
 
-import buildPoseidon from './poseidon_opt'
+// import buildPoseidon from './poseidon_opt'
+import { poseidon } from './poseidon-lite-wrapper'
+// initializePoseidonFuncs()
 
-const poseidon = buildPoseidon()
+// const poseidon = buildPoseidon()
 
 const babyjubjubCURVE: EdwardsOpts = {
   p: 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001n,

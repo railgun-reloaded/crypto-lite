@@ -1,3 +1,5 @@
+/* eslint-disable import-x/first */
+/* eslint-disable import-x/order */
 import {
   etc,
   getPublicKey,
@@ -5,7 +7,11 @@ import {
 } from '@noble/ed25519'
 import { sha512 } from '@noble/hashes/sha2'
 
+// import { initializePoseidonFuncs } from './poseidon-lite-wrapper'
+// initializePoseidonFuncs()
 import buildEddsa from './eddsa-noble'
+import { bigIntToUint8Array, uint8ArrayToBigInt } from './utils'
+
 // Set the SHA-512 implementation
 // https://github.com/paulmillr/noble-ed25519/blob/main/README.md#enabling-synchronous-methods
 // Sync methods can be used now:
@@ -50,36 +56,6 @@ const wrapperModule = {
 }
 
 /**
- * Converts a BigInt to a Uint8Array representation.
- * @param num - The BigInt number to convert
- * @returns A Uint8Array containing the byte representation of the BigInt
- * @example
- * ```typescript
- * const bigNum = 123456789n;
- * const bytes = bigIntToUint8Array(bigNum);
- * console.log(bytes); // Uint8Array representation
- * ```
- */
-function bigIntToUint8Array (num: bigint) {
-  return eddsaBuild.toBytes(num)
-}
-
-/**
- * Converts a Uint8Array buffer to a BigInt using the eddsa build from bytes method.
- * @param buf - The Uint8Array buffer to convert to BigInt
- * @returns The BigInt representation of the input buffer
- * @example
- * ```typescript
- * const buffer = new Uint8Array([1, 2, 3, 4]);
- * const bigIntValue = uint8ArrayToBigInt(buffer);
- * console.log(bigIntValue); // BigInt representation of the buffer
- * ```
- */
-function uint8ArrayToBigInt (buf: Uint8Array) {
-  return eddsaBuild.fromBytes(buf)
-}
-
-/**
  * Computes the Poseidon hash for an array of byte arrays.
  * @param inputs - Array of Uint8Array inputs to be hashed
  * @returns The Poseidon hash result as a reversed Uint8Array
@@ -93,7 +69,10 @@ function uint8ArrayToBigInt (buf: Uint8Array) {
  */
 const poseidon = (inputs: Uint8Array[]) => {
   // TODO: wasm import
-  const result = poseidonBuild(inputs)
+  const result = poseidonBuild(inputs.map(a => a.reverse()))
+  // const result = poseidonBuild.F.fromMontgomery(
+  //   poseidonBuild(inputs.map((input) => poseidonBuild.F.toMontgomery(new Uint8Array(input).reverse())))
+  // )
   return bigIntToUint8Array(result).reverse()
 }
 
