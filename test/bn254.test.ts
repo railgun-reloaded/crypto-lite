@@ -124,6 +124,17 @@ describe('Fr (BN254 scalar field)', () => {
       }
     })
 
+    it('Fr.toObject covers toIField path', () => {
+      // direct coverage trigger
+      const v = Fr.toObject(0)
+      assert.equal(typeof v, 'bigint')
+    })
+
+    it('Fr.toString covers default and explicit base', () => {
+      assert.equal(Fr.toString(0n), '0')  // default base
+      assert.equal(Fr.toString(15n, 16), 'f')  // explicit base path
+    })
+
     it('Fr.e(Uint8Array) matches bigint input', () => {
       for (let i = 0; i < ITER; i++) {
         const a = randFr()
