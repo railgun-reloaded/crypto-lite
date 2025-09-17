@@ -1,9 +1,11 @@
 import type { EdwardsOpts } from '@noble/curves/abstract/edwards'
 import { edwards } from '@noble/curves/abstract/edwards'
 import { blake512 } from '@noble/hashes/blake1'
+import { poseidon5 } from 'poseidon-lite'
 
 // import buildPoseidon from './poseidon_opt'
-import { poseidon } from './poseidon-lite-wrapper'
+// import { poseidon } from './poseidon-lite-wrapper'
+
 // initializePoseidonFuncs()
 
 // const poseidon = buildPoseidon()
@@ -149,23 +151,23 @@ class EddsaPoseidon {
    * ```
    */
   public readonly Fr = this.Point.Fn                    // base field
-  /**
-   * Poseidon hash function instance used for cryptographic operations in EdDSA signatures.
-   * This is typically used for hashing data before signing or for generating deterministic values.
-   * @example
-   * ```typescript
-   * const hash = this.poseidon([1, 2, 3, 4]);
-   * console.log(hash); // Returns poseidon hash output
-   * ```
-   * @example
-   * ```typescript
-   * // Hash message before signing
-   * const message = [BigInt(123), BigInt(456)];
-   * const hashedMessage = this.poseidon(message);
-   * const signature = this.sign(hashedMessage, privateKey);
-   * ```
-   */
-  public readonly poseidon: any
+  // /**
+  //  * Poseidon hash function instance used for cryptographic operations in EdDSA signatures.
+  //  * This is typically used for hashing data before signing or for generating deterministic values.
+  //  * @example
+  //  * ```typescript
+  //  * const hash = this.poseidon([1, 2, 3, 4]);
+  //  * console.log(hash); // Returns poseidon hash output
+  //  * ```
+  //  * @example
+  //  * ```typescript
+  //  * // Hash message before signing
+  //  * const message = [BigInt(123), BigInt(456)];
+  //  * const hashedMessage = this.poseidon(message);
+  //  * const signature = this.sign(hashedMessage, privateKey);
+  //  * ```
+  //  */
+  // public readonly poseidon: any
 
   /**
    * Creates a new instance of the EdDSA-Poseidon-Babyjubjub class.
@@ -178,7 +180,7 @@ class EddsaPoseidon {
    */
   constructor () {
     this.Base8 = this.Point.BASE.multiplyUnsafe(8n).toAffine() as Affine
-    this.poseidon = poseidon
+    // this.poseidon = poseidon
   }
 
   /**
@@ -317,7 +319,7 @@ class EddsaPoseidon {
     const R8 = (this.Point.fromAffine(this.Base8) as any).multiplyUnsafe(r).toAffine() as Affine
     const msgField = this.Fr.create(leBytesToBigint(msg))
 
-    const hm = this.poseidon([R8.x, R8.y, A.x, A.y, msgField]) % this.n
+    const hm = poseidon5([R8.x, R8.y, A.x, A.y, msgField]) % this.n
     const hms = this.Fr.create(hm)
     const subOrder = this.Fr.ORDER >> 3n
     const mul = hms * s
@@ -356,7 +358,7 @@ class EddsaPoseidon {
     if (!R.multiplyUnsafe(subOrder).equals(this.Point.ZERO)) return false
     if (!Ap.multiplyUnsafe(subOrder).equals(this.Point.ZERO)) return false
     const msgField = this.Fr.create(leBytesToBigint(msg))
-    const hm = this.poseidon([R8.x, R8.y, A.x, A.y, msgField]) % this.n
+    const hm = poseidon5([R8.x, R8.y, A.x, A.y, msgField]) % this.n
     const hms = this.Fr.create(hm)
 
     const left = this.Point.fromAffine(this.Base8)

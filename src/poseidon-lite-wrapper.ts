@@ -4,22 +4,24 @@ import * as poseidonLib from 'poseidon-lite'
 import { bigIntToUint8Array, uint8ArrayToBigInt } from './utils'
 
 type PoseidonFunc = (input: (bigint | number | string)[], nOuts?: number) => bigint
-const poseidonFuncs: PoseidonFunc[] = []
-
-type PoseidonFnName = Extract<keyof typeof poseidonLib, `poseidon${number}`>
-
-const initializePoseidonFuncs = () => {
-  for (let i = 1; i <= 16; i++) {
-    // theres up to 16 but we only use 13,
-    poseidonFuncs.push(getPoseidonFunc(i) as PoseidonFunc)
-  }
-}
-
-const getPoseidonFunc = (n: number) => {
-  // error vs return undefined?
-  const fnName = `poseidon${n}` as PoseidonFnName
-  return poseidonLib[fnName]
-}
+const poseidonFuncs: PoseidonFunc[] = [
+  poseidonLib.poseidon1,
+  poseidonLib.poseidon2,
+  poseidonLib.poseidon3,
+  poseidonLib.poseidon4,
+  poseidonLib.poseidon5,
+  poseidonLib.poseidon6,
+  poseidonLib.poseidon7,
+  poseidonLib.poseidon8,
+  poseidonLib.poseidon9,
+  poseidonLib.poseidon10,
+  poseidonLib.poseidon11,
+  poseidonLib.poseidon12,
+  poseidonLib.poseidon13,
+  poseidonLib.poseidon14,
+  poseidonLib.poseidon15,
+  poseidonLib.poseidon16,
+]
 
 type PoseidonInput = bigint | number | string
 
@@ -52,7 +54,7 @@ function poseidon (inputs: (PoseidonInput)[], returnBigInt = true, nOuts?: numbe
     }
   }
 
-  const func = getPoseidonFunc(inputLen)!
+  const func = poseidonFuncs[inputLen - 1]!
   // ignore this because it gets modified.
   const output = func(inputs as PoseidonInput[], nOuts)
   // convert this back into uint8array if nOuts is 1
@@ -90,4 +92,4 @@ function poseidon (inputs: (PoseidonInput)[], returnBigInt = true, nOuts?: numbe
   }
 }
 
-export { initializePoseidonFuncs, poseidon }
+export { poseidon }

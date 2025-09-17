@@ -5,7 +5,6 @@ import { before, describe, it } from 'node:test'
 
 import { randomBytes } from '@noble/hashes/utils'
 
-import { initializePoseidonFuncs } from '../src/poseidon-lite-wrapper'
 import buildEddsaPoseidon, { BabyJubPoint } from '../src/eddsa-noble'
 
 function randomKey (): Uint8Array {
@@ -22,7 +21,6 @@ describe('EddsaPoseidon (production tests)', () => {
   const subOrder = eddsa.Fr.ORDER >> 3n
 
   before(() => {
-    initializePoseidonFuncs()
     prv = new Uint8Array(32).fill(7)
     pub = eddsa.prv2pub(prv)
     msg = new TextEncoder().encode('PoseidonTestMessage')

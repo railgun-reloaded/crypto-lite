@@ -7,7 +7,7 @@ import {
 } from '@noble/ed25519'
 import { sha512 } from '@noble/hashes/sha2'
 
-// import { initializePoseidonFuncs } from './poseidon-lite-wrapper'
+import { poseidon as poseidonFn } from './poseidon-lite-wrapper'
 // initializePoseidonFuncs()
 import buildEddsa from './eddsa-noble'
 import { bigIntToUint8Array, uint8ArrayToBigInt } from './utils'
@@ -48,7 +48,7 @@ interface CircomlibSignature {
 
 const eddsaBuild = buildEddsa()
 
-const poseidonBuild = eddsaBuild.poseidon
+const poseidonBuild = poseidonFn
 
 const wrapperModule = {
   eddsaBuild,
@@ -69,11 +69,11 @@ const wrapperModule = {
  */
 const poseidon = (inputs: Uint8Array[]) => {
   // TODO: wasm import
-  const result = poseidonBuild(inputs.map(a => a.reverse()))
+  const result = poseidonBuild(inputs.map(a => a.reverse()) as any)
   // const result = poseidonBuild.F.fromMontgomery(
   //   poseidonBuild(inputs.map((input) => poseidonBuild.F.toMontgomery(new Uint8Array(input).reverse())))
   // )
-  return bigIntToUint8Array(result).reverse()
+  return bigIntToUint8Array(result as bigint).reverse()
 }
 
 /**
