@@ -2,6 +2,7 @@
   "name": "@railgun-reloaded/crypto-lite",
   "version": "0.0.1",
   "description": "TODO",
+  "type": "module",
   "scripts": {
     "build": "tsc --build",
     "clean": "tsc --build --clean",
