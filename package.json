@@ -1,8 +1,9 @@
 {
   "name": "@railgun-reloaded/crypto-lite",
   "version": "0.0.1",
-  "description": "TODO",
+  "description": "Lightweight cryptographic primitives for RAILGUN",
   "type": "module",
+  "main": "./src/index.js",
   "scripts": {
     "build": "tsc --build",
     "clean": "tsc --build --clean",
@@ -15,15 +16,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://git@github.com/railgun-reloaded/REPO.git"
+    "url": "git+https://github.com/railgun-reloaded/crypto-lite.git"
   },
   "keywords": [],
   "author": "RAILGUN Project Contributors",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/railgun-reloaded/REPO/issues"
+    "url": "https://github.com/railgun-reloaded/crypto-lite/issues"
   },
-  "homepage": "https://github.com/railgun-reloaded/REPO#readme",
+  "homepage": "https://github.com/railgun-reloaded/crypto-lite#readme",
   "devDependencies": {
     "@railgun-reloaded/eslint-config": "^1.1.0",
     "@railgun-reloaded/tsconfig": "^1.2.0",
